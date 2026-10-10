@@ -1,15 +1,1164 @@
 openapi: 3.1.0
 info:
-  title: University Course Registration API
-  version: 0.1.0
+  title: University Course Registration & Prerequisite Validation API
+  version: 0.2.0
+  description: >
+    Service contract between the frontend and the backend of the Topic 6 project
+    (Software Engineering 502045). Every endpoint must be described here and agreed
+    by the team before it is implemented.
 servers:
-  - url: http://localhost:3000
-security: []
+  - url: http://localhost:3000/api/v1
+    description: Local development
+tags:
+  - name: System
+    description: Service status.
+  - name: Auth
+    description: Sign in, sign out and the current session.
+  - name: Semesters
+    description: Semesters and their registration periods.
+  - name: Courses
+    description: Course catalog.
+  - name: Prerequisites
+    description: Prerequisite relationships between courses.
+  - name: Sections
+    description: Course sections offered in a semester.
+  - name: Registrations
+    description: Registering for and dropping sections.
+  - name: Waitlist
+    description: Queue for full sections.
+  - name: Students
+    description: Data of the signed-in student.
+security:
+  - cookieAuth: []
+
 paths:
-  /api/v1/health:
+  /health:
     get:
+      tags: [System]
       summary: Health check
       operationId: getHealth
+      security: []
       responses:
         '200':
           description: Service is running.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    examples: [ok]
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Sign in and start a session
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Signed in. The session cookie is set.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid email or password (code INVALID_CREDENTIALS).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: End the current session
+      operationId: logout
+      responses:
+        '204':
+          description: Signed out.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get the signed-in user
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: The signed-in user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /semesters:
+    get:
+      tags: [Semesters]
+      summary: List semesters
+      operationId: listSemesters
+      responses:
+        '200':
+          description: All semesters, newest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Semester'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /semesters/current:
+    get:
+      tags: [Semesters]
+      summary: Get the semester that is currently open for registration
+      operationId: getCurrentSemester
+      responses:
+        '200':
+          description: The current semester.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Semester'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /courses:
+    get:
+      tags: [Courses]
+      summary: Search the course catalog
+      operationId: listCourses
+      parameters:
+        - name: q
+          in: query
+          description: Keyword matched against course code and name.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: One page of courses.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoursePage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Courses]
+      summary: Create a course (admin)
+      operationId: createCourse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseInput'
+      responses:
+        '201':
+          description: Course created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Course code already exists (code COURSE_CODE_EXISTS).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /courses/{courseId}:
+    parameters:
+      - $ref: '#/components/parameters/CourseId'
+    get:
+      tags: [Courses]
+      summary: Get a course with its prerequisites and open sections
+      operationId: getCourse
+      parameters:
+        - name: semesterId
+          in: query
+          description: Semester whose sections are returned. Defaults to the current semester.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Course details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Courses]
+      summary: Update a course (admin)
+      operationId: updateCourse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseInput'
+      responses:
+        '200':
+          description: Course updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Course code already exists (code COURSE_CODE_EXISTS).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /courses/{courseId}/prerequisites:
+    parameters:
+      - $ref: '#/components/parameters/CourseId'
+    get:
+      tags: [Prerequisites]
+      summary: List the direct prerequisites of a course
+      operationId: listPrerequisites
+      responses:
+        '200':
+          description: Direct prerequisites.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [Prerequisites]
+      summary: Add a prerequisite to a course (admin)
+      operationId: addPrerequisite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrerequisiteInput'
+      responses:
+        '201':
+          description: Prerequisite added.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: >
+            The relationship already exists (code PREREQUISITE_EXISTS) or it would
+            create a cycle in the prerequisite graph (code PREREQUISITE_CYCLE).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /courses/{courseId}/prerequisites/{prerequisiteId}:
+    parameters:
+      - $ref: '#/components/parameters/CourseId'
+      - name: prerequisiteId
+        in: path
+        required: true
+        description: Id of the prerequisite course.
+        schema:
+          type: integer
+    delete:
+      tags: [Prerequisites]
+      summary: Remove a prerequisite from a course (admin)
+      operationId: removePrerequisite
+      responses:
+        '204':
+          description: Prerequisite removed.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /sections:
+    get:
+      tags: [Sections]
+      summary: List sections
+      operationId: listSections
+      parameters:
+        - name: semesterId
+          in: query
+          description: Defaults to the current semester.
+          schema:
+            type: integer
+        - name: courseId
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Matching sections.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Section'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Sections]
+      summary: Create a section (admin)
+      operationId: createSection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionInput'
+      responses:
+        '201':
+          description: Section created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Section code already exists for this course and semester (code SECTION_CODE_EXISTS).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sections/{sectionId}:
+    parameters:
+      - $ref: '#/components/parameters/SectionId'
+    get:
+      tags: [Sections]
+      summary: Get a section
+      operationId: getSection
+      responses:
+        '200':
+          description: Section details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Sections]
+      summary: Update a section (admin)
+      operationId: updateSection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionInput'
+      responses:
+        '200':
+          description: Section updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: New capacity is lower than the number of enrolled students (code CAPACITY_BELOW_ENROLLED).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sections/{sectionId}/enrolments:
+    parameters:
+      - $ref: '#/components/parameters/SectionId'
+    get:
+      tags: [Sections]
+      summary: List the students enrolled in a section (admin)
+      operationId: listSectionEnrolments
+      responses:
+        '200':
+          description: Enrolled students.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Registration'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /sections/{sectionId}/waitlist:
+    parameters:
+      - $ref: '#/components/parameters/SectionId'
+    get:
+      tags: [Sections]
+      summary: List the waitlist of a section in queue order (admin)
+      operationId: listSectionWaitlist
+      responses:
+        '200':
+          description: Waitlist entries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WaitlistEntry'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /registrations:
+    get:
+      tags: [Registrations]
+      summary: List the signed-in student's registrations
+      operationId: listMyRegistrations
+      parameters:
+        - name: semesterId
+          in: query
+          description: Defaults to the current semester.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The student's registrations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Registration'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Registrations]
+      summary: Register the signed-in student for a section
+      description: >
+        Checks run in this order: registration period, duplicate course, prerequisites,
+        schedule clash, credit limit, then seat allocation inside a transaction.
+        The first failed check decides the error code.
+      operationId: createRegistration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationRequest'
+      responses:
+        '201':
+          description: Registration confirmed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registration'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Not a student, or the registration period is closed (code REGISTRATION_CLOSED).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: >
+            Conflict with the current state: ALREADY_ENROLLED, SCHEDULE_CLASH or SECTION_FULL.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: >
+            A business rule is not satisfied: PREREQUISITE_NOT_MET, CREDIT_LIMIT_EXCEEDED
+            or COURSE_ALREADY_PASSED.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /registrations/validate:
+    post:
+      tags: [Registrations]
+      summary: Check a section against all rules without registering
+      description: >
+        Dry run used by the schedule builder. Nothing is saved and no seat is held.
+        All violations are returned, not only the first one.
+      operationId: validateRegistration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationRequest'
+      responses:
+        '200':
+          description: Validation result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /registrations/{registrationId}:
+    parameters:
+      - name: registrationId
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      tags: [Registrations]
+      summary: Drop a registration
+      description: >
+        Frees the seat and, in the same transaction, promotes the first eligible
+        student on the section's waitlist.
+      operationId: dropRegistration
+      responses:
+        '204':
+          description: Registration dropped.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: The registration belongs to another student, or the registration period is closed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /waitlist:
+    get:
+      tags: [Waitlist]
+      summary: List the signed-in student's waitlist entries
+      operationId: listMyWaitlist
+      parameters:
+        - name: semesterId
+          in: query
+          description: Defaults to the current semester.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The student's waitlist entries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WaitlistEntry'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Waitlist]
+      summary: Join the waitlist of a full section
+      operationId: joinWaitlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationRequest'
+      responses:
+        '201':
+          description: Added to the waitlist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WaitlistEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Not a student, or the registration period is closed (code REGISTRATION_CLOSED).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: >
+            Conflict with the current state: ALREADY_ON_WAITLIST, ALREADY_ENROLLED or SECTION_NOT_FULL.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Prerequisites are not satisfied (code PREREQUISITE_NOT_MET).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /waitlist/{entryId}:
+    parameters:
+      - name: entryId
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      tags: [Waitlist]
+      summary: Leave a waitlist
+      operationId: leaveWaitlist
+      responses:
+        '204':
+          description: Removed from the waitlist.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/me/schedule:
+    get:
+      tags: [Students]
+      summary: Get the signed-in student's weekly timetable
+      operationId: getMySchedule
+      parameters:
+        - name: semesterId
+          in: query
+          description: Defaults to the current semester.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Weekly timetable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeeklySchedule'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /students/me/completed-courses:
+    get:
+      tags: [Students]
+      summary: List the courses the signed-in student has taken, with results
+      operationId: listMyCompletedCourses
+      responses:
+        '200':
+          description: Academic history.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CompletedCourse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sid
+      description: Session cookie set by POST /auth/login.
+
+  parameters:
+    CourseId:
+      name: courseId
+      in: path
+      required: true
+      schema:
+        type: integer
+    SectionId:
+      name: sectionId
+      in: path
+      required: true
+      schema:
+        type: integer
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  responses:
+    BadRequest:
+      description: The request body or parameters are invalid (code VALIDATION_ERROR).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: No valid session (code UNAUTHENTICATED).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: The signed-in user is not allowed to do this (code FORBIDDEN).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The resource does not exist (code NOT_FOUND).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          description: Human-readable explanation.
+        details:
+          type: object
+          description: >
+            Extra data for the client. Examples: missingCourses for PREREQUISITE_NOT_MET,
+            conflictsWith for SCHEDULE_CLASH, currentCredits and limit for CREDIT_LIMIT_EXCEEDED.
+          additionalProperties: true
+
+    ErrorCode:
+      type: string
+      enum:
+        - VALIDATION_ERROR
+        - UNAUTHENTICATED
+        - INVALID_CREDENTIALS
+        - FORBIDDEN
+        - NOT_FOUND
+        - REGISTRATION_CLOSED
+        - ALREADY_ENROLLED
+        - COURSE_ALREADY_PASSED
+        - PREREQUISITE_NOT_MET
+        - SCHEDULE_CLASH
+        - CREDIT_LIMIT_EXCEEDED
+        - SECTION_FULL
+        - SECTION_NOT_FULL
+        - ALREADY_ON_WAITLIST
+        - COURSE_CODE_EXISTS
+        - SECTION_CODE_EXISTS
+        - CAPACITY_BELOW_ENROLLED
+        - PREREQUISITE_EXISTS
+        - PREREQUISITE_CYCLE
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    User:
+      type: object
+      required: [id, email, fullName, role]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        fullName:
+          type: string
+        role:
+          type: string
+          enum: [STUDENT, ADMIN]
+        studentCode:
+          type: [string, 'null']
+          description: Present for students only.
+
+    Semester:
+      type: object
+      required: [id, code, name, registrationStart, registrationEnd, maxCredits]
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+          examples: ['2026-1']
+        name:
+          type: string
+        registrationStart:
+          type: string
+          format: date-time
+        registrationEnd:
+          type: string
+          format: date-time
+        maxCredits:
+          type: integer
+          examples: [24]
+        registrationOpen:
+          type: boolean
+          description: True when the current time is inside the registration period.
+
+    Course:
+      type: object
+      required: [id, code, name, credits]
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+          examples: [CS201]
+        name:
+          type: string
+        credits:
+          type: integer
+          minimum: 1
+        description:
+          type: [string, 'null']
+
+    CourseInput:
+      type: object
+      required: [code, name, credits]
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        credits:
+          type: integer
+          minimum: 1
+        description:
+          type: string
+
+    PrerequisiteStatus:
+      allOf:
+        - $ref: '#/components/schemas/Course'
+        - type: object
+          properties:
+            passed:
+              type: boolean
+              description: Whether the signed-in student has passed this course. Omitted for admins.
+
+    CourseDetail:
+      allOf:
+        - $ref: '#/components/schemas/Course'
+        - type: object
+          required: [prerequisites, sections]
+          properties:
+            prerequisites:
+              type: array
+              items:
+                $ref: '#/components/schemas/PrerequisiteStatus'
+            sections:
+              type: array
+              items:
+                $ref: '#/components/schemas/Section'
+
+    CoursePage:
+      type: object
+      required: [items, page, pageSize, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+
+    PrerequisiteInput:
+      type: object
+      required: [prerequisiteId]
+      properties:
+        prerequisiteId:
+          type: integer
+          description: Id of the course that must be passed first.
+
+    ScheduleSlot:
+      type: object
+      required: [dayOfWeek, startPeriod, endPeriod]
+      properties:
+        dayOfWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: 1 is Monday, 7 is Sunday.
+        startPeriod:
+          type: integer
+          minimum: 1
+          maximum: 15
+        endPeriod:
+          type: integer
+          minimum: 1
+          maximum: 15
+          description: Inclusive. Must not be lower than startPeriod.
+        room:
+          type: [string, 'null']
+
+    Section:
+      type: object
+      required: [id, courseId, semesterId, code, capacity, enrolledCount, slots]
+      properties:
+        id:
+          type: integer
+        courseId:
+          type: integer
+        semesterId:
+          type: integer
+        code:
+          type: string
+          examples: [CS201-01]
+        lecturerName:
+          type: [string, 'null']
+        capacity:
+          type: integer
+          minimum: 1
+        enrolledCount:
+          type: integer
+          minimum: 0
+        remainingSeats:
+          type: integer
+          minimum: 0
+        waitlistCount:
+          type: integer
+          minimum: 0
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleSlot'
+
+    SectionInput:
+      type: object
+      required: [courseId, semesterId, code, capacity, slots]
+      properties:
+        courseId:
+          type: integer
+        semesterId:
+          type: integer
+        code:
+          type: string
+        lecturerName:
+          type: string
+        capacity:
+          type: integer
+          minimum: 1
+        slots:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ScheduleSlot'
+
+    RegistrationRequest:
+      type: object
+      required: [sectionId]
+      properties:
+        sectionId:
+          type: integer
+
+    Registration:
+      type: object
+      required: [id, studentId, section, status, createdAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        section:
+          $ref: '#/components/schemas/Section'
+        course:
+          $ref: '#/components/schemas/Course'
+        status:
+          type: string
+          enum: [ENROLLED, DROPPED]
+        createdAt:
+          type: string
+          format: date-time
+
+    Violation:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    ValidationResult:
+      type: object
+      required: [valid, violations]
+      properties:
+        valid:
+          type: boolean
+        violations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Violation'
+
+    WaitlistEntry:
+      type: object
+      required: [id, studentId, sectionId, status, createdAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        sectionId:
+          type: integer
+        position:
+          type: [integer, 'null']
+          description: 1-based position in the queue. Null when the entry is no longer waiting.
+        status:
+          type: string
+          enum: [WAITING, PROMOTED, SKIPPED, CANCELLED]
+        createdAt:
+          type: string
+          format: date-time
+
+    ScheduleEntry:
+      type: object
+      required: [sectionId, sectionCode, courseCode, courseName, credits, dayOfWeek, startPeriod, endPeriod]
+      properties:
+        sectionId:
+          type: integer
+        sectionCode:
+          type: string
+        courseCode:
+          type: string
+        courseName:
+          type: string
+        credits:
+          type: integer
+        dayOfWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+        startPeriod:
+          type: integer
+        endPeriod:
+          type: integer
+        room:
+          type: [string, 'null']
+
+    WeeklySchedule:
+      type: object
+      required: [semesterId, totalCredits, maxCredits, entries]
+      properties:
+        semesterId:
+          type: integer
+        totalCredits:
+          type: integer
+        maxCredits:
+          type: integer
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleEntry'
+
+    CompletedCourse:
+      type: object
+      required: [course, grade, passed]
+      properties:
+        course:
+          $ref: '#/components/schemas/Course'
+        semesterCode:
+          type: string
+        grade:
+          type: number
+          minimum: 0
+          maximum: 10
+        passed:
+          type: boolean
