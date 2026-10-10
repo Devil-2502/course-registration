@@ -1,0 +1,52 @@
+sequenceDiagram
+    autonumber
+    actor S as Student
+    participant FE as Frontend
+    participant API as Registration API
+    participant RS as RegistrationService
+    participant PS as PrerequisiteService
+    participant DB as PostgreSQL
+
+    S->>FE: Click "Register" on a section
+    FE->>API: POST /api/v1/registrations {sectionId}
+    API->>API: Check session cookie and STUDENT role
+    API->>RS: register(studentId, sectionId)
+
+    RS->>DB: Load section, course, semester
+    alt Registration period closed
+        RS-->>API: REGISTRATION_CLOSED
+        API-->>FE: 403 Forbidden
+    end
+
+    RS->>PS: findMissing(studentId, courseId)
+    PS->>DB: Load prerequisites and completed courses
+    PS-->>RS: missing courses
+    alt Prerequisite not met
+        RS-->>API: PREREQUISITE_NOT_MET
+        API-->>FE: 422 Unprocessable Entity
+    end
+
+    RS->>DB: BEGIN
+    RS->>DB: SELECT student FOR UPDATE
+    RS->>DB: SELECT section FOR UPDATE
+    Note over RS,DB: Concurrent requests for the same section wait here
+    RS->>DB: Load the student's enrolled sections and slots
+    RS->>RS: Check duplicate course, schedule clash, credit limit
+
+    alt A check fails
+        RS->>DB: ROLLBACK
+        RS-->>API: ALREADY_ENROLLED / SCHEDULE_CLASH / CREDIT_LIMIT_EXCEEDED
+        API-->>FE: 409 or 422
+    else Section is full
+        RS->>DB: ROLLBACK
+        RS-->>API: SECTION_FULL
+        API-->>FE: 409 Conflict
+        FE-->>S: Offer "Join waitlist"
+    else Seat available
+        RS->>DB: INSERT enrolment (ENROLLED)
+        RS->>DB: UPDATE section SET enrolled_count = enrolled_count + 1
+        RS->>DB: COMMIT
+        RS-->>API: Enrolment
+        API-->>FE: 201 Created
+        FE-->>S: Show the section on the weekly schedule
+    end

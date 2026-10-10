@@ -122,6 +122,7 @@ Một số thư mục (`frontend/`, `backend/`, `.env.example`, `docker-compose.
 | [docs/openapi-spec.yaml](docs/openapi-spec.yaml) | Hợp đồng API chính thức | M2 |
 | [docs/ui-screen-list.md](docs/ui-screen-list.md) | Danh sách màn hình và luồng điều hướng | M1 |
 | [docs/erd/README.md](docs/erd/README.md) | Bảng dữ liệu, ràng buộc, ERD | M3 |
+| [docs/uml/README.md](docs/uml/README.md) | Sơ đồ Use Case, Class, Sequence | Cả nhóm |
 | [tests/README.md](tests/README.md) | Kế hoạch kiểm thử | M4 |
 
 ## Cài đặt môi trường

@@ -1,0 +1,63 @@
+digraph UseCase {
+    rankdir=LR;
+    fontname="Helvetica"; fontsize=13;
+    nodesep=0.28; ranksep=1.3;
+    node [fontname="Helvetica", fontsize=11];
+    edge [fontname="Helvetica", fontsize=9];
+
+    student [shape=box, style="rounded", label="«actor»\nStudent", width=1.1];
+    admin   [shape=box, style="rounded", label="«actor»\nAdmin", width=1.1];
+
+    subgraph cluster_system {
+        label="University Course Registration & Prerequisite Validation Engine";
+        labelloc=t; style=solid; color="#444444"; margin=18;
+        node [shape=ellipse, style=filled, fillcolor="#EEF3FB", color="#4A6FA5"];
+
+        subgraph cluster_primary { style=invis;
+            uc_login    [label="Sign in"];
+            uc_search   [label="Search course catalog"];
+            uc_detail   [label="View course details\nand prerequisites"];
+            uc_register [label="Register for a section"];
+            uc_wait     [label="Join waitlist"];
+            uc_drop     [label="Drop a section"];
+            uc_schedule [label="View weekly schedule"];
+            uc_courses  [label="Manage courses\nand sections"];
+            uc_prereq   [label="Manage prerequisite\nrelationships"];
+            uc_roster   [label="View section roster\nand waitlist"];
+        }
+        subgraph cluster_included { style=invis;
+            node [fillcolor="#F7F7F7", color="#777777"];
+            uc_vprereq  [label="Validate prerequisites"];
+            uc_clash    [label="Detect schedule clash"];
+            uc_credit   [label="Verify credit limit"];
+            uc_seat     [label="Allocate seat\n(concurrency-safe)"];
+            uc_promote  [label="Promote first eligible\nwaiting student"];
+            uc_cycle    [label="Detect prerequisite cycle"];
+        }
+    }
+
+    edge [dir=none, color="#222222"];
+    student -> uc_login;
+    student -> uc_search;
+    student -> uc_detail;
+    student -> uc_register;
+    student -> uc_wait;
+    student -> uc_drop;
+    student -> uc_schedule;
+    admin -> uc_login;
+    admin -> uc_courses;
+    admin -> uc_prereq;
+    admin -> uc_roster;
+
+    edge [dir=forward, style=dashed, arrowhead=vee, color="#555555"];
+    uc_register -> uc_vprereq [label="«include»"];
+    uc_register -> uc_clash   [label="«include»"];
+    uc_register -> uc_credit  [label="«include»"];
+    uc_register -> uc_seat    [label="«include»"];
+    uc_wait -> uc_vprereq     [label="«include»"];
+    uc_drop -> uc_promote     [label="«include»"];
+    uc_promote -> uc_clash    [label="«include»", constraint=false];
+    uc_promote -> uc_credit   [label="«include»", constraint=false];
+    uc_prereq -> uc_cycle     [label="«include»"];
+    uc_wait -> uc_register    [label="«extend»\n(section full)", constraint=false];
+}

@@ -1,0 +1,129 @@
+classDiagram
+    direction TB
+
+    class User {
+        +int id
+        +string email
+        -string passwordHash
+        +string fullName
+        +Role role
+    }
+    class Student {
+        +int id
+        +string studentCode
+        +string program
+    }
+    class Semester {
+        +int id
+        +string code
+        +DateTime registrationStart
+        +DateTime registrationEnd
+        +int maxCredits
+        +isRegistrationOpen(now) bool
+    }
+    class Course {
+        +int id
+        +string code
+        +string name
+        +int credits
+    }
+    class Prerequisite {
+        +int courseId
+        +int prerequisiteId
+    }
+    class Section {
+        +int id
+        +string code
+        +int capacity
+        +int enrolledCount
+        +remainingSeats() int
+        +isFull() bool
+    }
+    class ScheduleSlot {
+        +int dayOfWeek
+        +int startPeriod
+        +int endPeriod
+        +string room
+        +overlaps(other) bool
+    }
+    class Enrolment {
+        +int id
+        +EnrolmentStatus status
+        +DateTime createdAt
+        +DateTime droppedAt
+    }
+    class WaitlistEntry {
+        +int id
+        +WaitlistStatus status
+        +DateTime createdAt
+    }
+    class CompletedCourse {
+        +string semesterCode
+        +float grade
+        +bool passed
+    }
+    class Role {
+        <<enumeration>>
+        STUDENT
+        ADMIN
+    }
+    class EnrolmentStatus {
+        <<enumeration>>
+        ENROLLED
+        DROPPED
+    }
+    class WaitlistStatus {
+        <<enumeration>>
+        WAITING
+        PROMOTED
+        SKIPPED
+        CANCELLED
+    }
+
+    class RegistrationService {
+        <<service>>
+        +register(studentId, sectionId) Enrolment
+        +validate(studentId, sectionId) Violation[]
+        +drop(studentId, enrolmentId) void
+    }
+    class PrerequisiteService {
+        <<service>>
+        +findMissing(studentId, courseId) Course[]
+        +wouldCreateCycle(courseId, prerequisiteId) bool
+        +addPrerequisite(courseId, prerequisiteId) void
+    }
+    class ScheduleClashChecker {
+        <<service>>
+        +findClash(currentSections, newSection) Section
+    }
+    class CreditLimitChecker {
+        <<service>>
+        +exceeds(currentCredits, newCredits, limit) bool
+    }
+    class WaitlistService {
+        <<service>>
+        +join(studentId, sectionId) WaitlistEntry
+        +leave(studentId, entryId) void
+        +promoteNext(sectionId) Enrolment
+    }
+
+    User "1" -- "0..1" Student
+    Student "1" -- "0..*" Enrolment
+    Student "1" -- "0..*" WaitlistEntry
+    Student "1" -- "0..*" CompletedCourse
+    Course "1" -- "0..*" Section
+    Course "1" -- "0..*" Prerequisite : requires
+    Course "1" -- "0..*" Prerequisite : is required by
+    Course "1" -- "0..*" CompletedCourse
+    Semester "1" -- "0..*" Section
+    Section "1" *-- "1..*" ScheduleSlot
+    Section "1" -- "0..*" Enrolment
+    Section "1" -- "0..*" WaitlistEntry
+
+    RegistrationService ..> PrerequisiteService
+    RegistrationService ..> ScheduleClashChecker
+    RegistrationService ..> CreditLimitChecker
+    RegistrationService ..> WaitlistService
+    WaitlistService ..> PrerequisiteService
+    WaitlistService ..> ScheduleClashChecker
+    WaitlistService ..> CreditLimitChecker
