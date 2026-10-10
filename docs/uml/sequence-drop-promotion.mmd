@@ -1,0 +1,43 @@
+sequenceDiagram
+    autonumber
+    actor S as Student
+    participant FE as Frontend
+    participant API as Registration API
+    participant RS as RegistrationService
+    participant WS as WaitlistService
+    participant DB as PostgreSQL
+
+    S->>FE: Confirm "Drop section"
+    FE->>API: DELETE /api/v1/registrations/{registrationId}
+    API->>API: Check session cookie and STUDENT role
+    API->>RS: drop(studentId, registrationId)
+
+    RS->>DB: Load enrolment
+    alt Enrolment belongs to another student
+        RS-->>API: FORBIDDEN
+        API-->>FE: 403 Forbidden
+    end
+
+    RS->>DB: BEGIN
+    RS->>DB: SELECT section FOR UPDATE
+    RS->>DB: UPDATE enrolment SET status = DROPPED
+    RS->>DB: UPDATE section SET enrolled_count = enrolled_count - 1
+    RS->>WS: promoteNext(sectionId)
+
+    loop Until a student is promoted or the waitlist is empty
+        WS->>DB: Select the earliest WAITING entry
+        WS->>WS: Re-check prerequisites, schedule clash, credit limit
+        alt Still eligible
+            WS->>DB: INSERT enrolment (ENROLLED)
+            WS->>DB: UPDATE entry SET status = PROMOTED
+            WS->>DB: UPDATE section SET enrolled_count = enrolled_count + 1
+        else No longer eligible
+            WS->>DB: UPDATE entry SET status = SKIPPED
+        end
+    end
+
+    WS-->>RS: promoted enrolment or none
+    RS->>DB: COMMIT
+    RS-->>API: done
+    API-->>FE: 204 No Content
+    FE-->>S: Remove the section from the schedule
