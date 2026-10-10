@@ -11,5 +11,5 @@ phát hiện trùng lịch, giới hạn tín chỉ và xử lý hàng chờ.
 |---|---|---|---|
 | M1 - Frontend / UI-UX | | | |
 | M2 - Backend API | | | |
-| M3 - Database, Auth & Security | | | |
+| M3 - Database, Auth & Security | Tăng Hoàng Phúc | 52400307 | PECOCCNA |
 | M4 - QA, DevOps & Integration Test | | | |
