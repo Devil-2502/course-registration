@@ -1,0 +1,14 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "description": "Playwright API tests for the course registration backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.64.0"
+  }
+}

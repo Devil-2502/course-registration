@@ -1,0 +1,2 @@
+-- Migration 001: schema ban đầu.
+-- M3 viết các bảng theo docs/erd/README.md.
