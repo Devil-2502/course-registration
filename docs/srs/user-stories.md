@@ -349,10 +349,10 @@ Scenario: Drop someone else's registration
 
 ```gherkin
 Scenario: View the weekly timetable
-  Given student "std_402" is enrolled in "MA101-01" on Monday periods 1-3 and "CS201-02" on Wednesday periods 4-6
+  Given student "std_402" is enrolled in "MA101-01" on Monday periods 1-3 and "CS201-02" on Monday periods 4-6
   When the student opens the weekly schedule page
   Then the timetable shows "MA101-01" in the Monday column covering periods 1-3
-  And the timetable shows "CS201-02" in the Wednesday column covering periods 4-6
+  And the timetable shows "CS201-02" in the Monday column covering periods 4-6
   And the page shows the total registered credits
 
 Scenario: Preview a section before registering
