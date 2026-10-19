@@ -1098,13 +1098,9 @@ components:
           type: integer
         sectionId:
           type: integer
-        sectionId:
-          type: integer
         section:
           $ref: '#/components/schemas/Section'
           description: The section the student is waiting for, so clients can show its code.
-        position:
-          type: [integer, 'null']
         position:
           type: [integer, 'null']
           description: 1-based position in the queue. Null when the entry is no longer waiting.
