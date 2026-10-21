@@ -29,7 +29,7 @@ Mỗi thành viên đọc hết một lượt trước khi bắt đầu code.
 | M1 - Frontend / UI-UX | Nguyễn Thiên Trí | 52400059 | NguyenThienTri-52400059 | Tìm kiếm môn học, thời khóa biểu tuần, cổng đăng ký |
 | M2 - Backend API | Lê Trung Bảo | 52400042 | Devil-2502 | Dịch vụ kiểm tra đồ thị tiên quyết, API đăng ký có khóa đồng thời, hàng chờ |
 | M3 - Database, Auth & Security | Tăng Hoàng Phúc | 52400307 | PECOCCNA | Thiết kế CSDL (Courses, Enrolments, Prerequisites), đăng nhập và quản lý phiên |
-| M4 - QA, DevOps & Integration Test | Bùi Quốc Trung | 52400250 | JAVIRSds | Stress test đăng ký đồng thời, unit test đồ thị tiên quyết, Docker, CI |
+| M4 - QA, DevOps & Integration Test | Bùi Quốc Trung | 52400250 | JARVIS | Stress test đăng ký đồng thời, unit test đồ thị tiên quyết, Docker, CI |
 
 Việc của ai người đó chủ động làm. Cần sửa vào phần của người khác thì trao đổi trước trong Issue hoặc nhóm chat.
 
