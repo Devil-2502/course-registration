@@ -18,7 +18,7 @@ export function Timetable({ schedule, preview, conflict = false }: {
           <th scope="row">{period}</th>{days.map((day, index) => {
             const entries = schedule.entries.filter(entry => entry.dayOfWeek === index + 1 && entry.startPeriod <= period && entry.endPeriod >= period)
             const slots = preview?.section.slots.filter(slot => slot.dayOfWeek === index + 1 && slot.startPeriod <= period && slot.endPeriod >= period) ?? []
-            // The API decides whether there is a clash; intersections only locate cells to highlight.
+            // API quyết định có trùng lịch hay không; phần giao nhau chỉ dùng để tô đúng ô.
             const overlapping = conflict && entries.length > 0 && slots.length > 0
             return <td key={day} className={overlapping ? 'clash' : undefined}>
               {entries.map((entry, entryIndex) => <div className="lesson" key={`${entry.sectionId}-${entryIndex}`}>
