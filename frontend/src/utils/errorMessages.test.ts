@@ -3,6 +3,10 @@ import { ApiError } from '../api/client';
 import { errorMessage } from './errorMessages';
 
 describe('errorMessage', () => {
+  it('Giữ nguyên thông báo trùng lịch theo Gherkin US-11 từ backend', () => {
+    const message = 'Schedule clash with MA101-01';
+    expect(errorMessage(new ApiError(409, { code: 'SCHEDULE_CLASH', message }))).toBe(message);
+  });
   it('Liệt kê môn tiên quyết còn thiếu', () => {
     const error = new ApiError(422, {
       code: 'PREREQUISITE_NOT_MET',

@@ -15,8 +15,11 @@ export function errorMessage(error: unknown): string {
       return `Bạn chưa đạt môn tiên quyết: ${missing.map((c) => c.code).join(', ') || 'chưa rõ'}.`;
     }
     case 'SCHEDULE_CLASH': {
+      // US-11 quy định giữ nguyên câu này; backend hiện trả đúng mẫu Gherkin.
+      if (error.message.startsWith('Schedule clash with ')) return error.message;
       const list = (d.conflictsWith as { sectionCode?: string }[] | undefined) ?? [];
-      return `Trùng lịch với lớp ${list.map((c) => c.sectionCode).join(', ') || 'đã đăng ký'}.`;
+      const codes = list.map((c) => c.sectionCode).filter(Boolean);
+      return codes.length > 0 ? `Schedule clash with ${codes.join(', ')}` : 'Trùng lịch với lớp đã đăng ký.';
     }
     case 'CREDIT_LIMIT_EXCEEDED':
       return `Vượt giới hạn tín chỉ: đang có ${d.currentCredits ?? '?'}, giới hạn ${d.limit ?? '?'}.`;
