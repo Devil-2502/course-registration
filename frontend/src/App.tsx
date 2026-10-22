@@ -5,16 +5,20 @@ import type { User } from './api'
 import { ErrorNotice, Loading } from './components'
 import { useResource } from './useResource'
 import Catalog from './Catalog'
+import CompletedCourses from './CompletedCourses'
 import CourseDetails from './CourseDetails'
+import MyRegistrations from './MyRegistrations'
 import Schedule from './Schedule'
 import './App.css'
+
+type Page = 'catalog' | 'schedule' | 'registrations' | 'completed'
 
 function App() {
   const session = useResource(useCallback(() => request<User>('/auth/me'), []))
   const [signedInUser, setUser] = useState<User>()
   const [loginRequired, setLoginRequired] = useState(false)
   const user = signedInUser ?? (loginRequired ? undefined : session.data)
-  const [page, setPage] = useState<'catalog' | 'schedule'>('catalog')
+  const [page, setPage] = useState<Page>('catalog')
   const [courseId, setCourseId] = useState<number>()
   const [error, setError] = useState<unknown>()
   const [busy, setBusy] = useState(false)
@@ -32,6 +36,7 @@ function App() {
       setLoginRequired(false)
     } catch (failure) { setError(failure) } finally { setBusy(false) }
   }
+  function open(next: Page) { setPage(next); setCourseId(undefined) }
   async function logout() {
     setBusy(true); setError(undefined)
     try {
@@ -53,13 +58,17 @@ function App() {
   </main>
   return <>
     <header><div><strong>Đăng ký học phần</strong><p>{user.fullName}</p></div><nav aria-label="Điều hướng chính">
-      <button aria-current={page === 'catalog' ? 'page' : undefined} onClick={() => { setPage('catalog'); setCourseId(undefined) }}>Danh mục môn học</button>
-      <button aria-current={page === 'schedule' ? 'page' : undefined} onClick={() => setPage('schedule')}>Thời khóa biểu tuần</button>
+      <button aria-current={page === 'catalog' ? 'page' : undefined} onClick={() => open('catalog')}>Danh mục môn học</button>
+      <button aria-current={page === 'schedule' ? 'page' : undefined} onClick={() => open('schedule')}>Thời khóa biểu tuần</button>
+      <button aria-current={page === 'registrations' ? 'page' : undefined} onClick={() => open('registrations')}>Môn đã đăng ký</button>
+      <button aria-current={page === 'completed' ? 'page' : undefined} onClick={() => open('completed')}>Kết quả học tập</button>
       <button disabled={busy} onClick={logout}>Đăng xuất</button>
     </nav></header>
     <main>{error !== undefined && <ErrorNotice error={error} />}
       {user.role !== 'STUDENT' ? <p role="alert">Cổng đăng ký này dành cho sinh viên.</p> : page === 'schedule' ?
-        <Schedule catalog={() => { setPage('catalog'); setCourseId(undefined) }} /> : courseId !== undefined ?
+        <Schedule catalog={() => open('catalog')} /> : page === 'registrations' ?
+        <MyRegistrations catalog={() => open('catalog')} /> : page === 'completed' ?
+        <CompletedCourses /> : courseId !== undefined ?
           <CourseDetails key={courseId} id={courseId} back={() => setCourseId(undefined)} /> : <Catalog openCourse={setCourseId} />}
     </main>
   </>
