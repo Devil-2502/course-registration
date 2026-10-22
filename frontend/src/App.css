@@ -31,5 +31,13 @@ label { display: block; font-weight: 600; margin-bottom: .4rem; }
 .lesson span, .lesson small { display: block; }
 .lesson.preview { background: #fff5d7; border: 1px dashed #987419; margin-top: .25rem; }
 .clash, .clash .lesson { background: #ffe0de; color: #8b211b; }
+.danger { background: #a3261e; border-color: #a3261e; color: white; }
+.danger:hover:not(:disabled) { background: #861d17; }
+.waitlist { list-style: none; padding: 0; display: grid; gap: .75rem; }
+.waitlist li { justify-content: space-between; }
+.data-table { border-collapse: collapse; width: 100%; background: white; }
+.data-table caption { text-align: left; padding-bottom: .7rem; font-weight: 600; }
+.data-table th, .data-table td { border: 1px solid #d6e0eb; padding: .5rem .7rem; text-align: left; }
+.data-table thead { background: #e9f0f8; }
 pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .85rem; }
 @media(max-width: 700px) { header { align-items: flex-start; flex-direction: column; } main { padding-top: 1rem; } .login { margin: 2rem 1rem; } .search .actions { align-items: stretch; flex-direction: column; } }
