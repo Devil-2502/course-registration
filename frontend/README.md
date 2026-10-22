@@ -60,4 +60,6 @@ Tài khoản giả: `std_402@student.edu.vn` và `admin1@tdtu.edu.vn`, mật kh�
 
 Nguồn tham khảo: tài liệu `Huong-dan-M1-Nguyen-Thien-Tri.docx` và gói `Code-mau-M1-Tri.zip` do nhóm cung cấp. Đã điều chỉnh client dùng proxy cùng nguồn và `SectionInput.lecturerName` theo kiểu chuỗi tùy chọn trong OpenAPI hiện tại.
 
-Kết quả F2: lint không cảnh báo, build thành công, 44/44 kiểm thử qua; coverage dòng 87,53%, câu lệnh 87,29%, hàm 82,75%, nhánh 78,23%. Chưa kiểm thử tích hợp với backend thật và chưa chạy ảnh Docker ở bước này.
+Kết quả F2 sau rà soát với main `9d1ce17`: lint không cảnh báo, build thành công, 47/47 kiểm thử qua; coverage dòng 87,66%, câu lệnh 87,44%, hàm 82,75%, nhánh 78,81%. Chưa kiểm thử tích hợp toàn bộ với backend thật và chưa chạy ảnh Docker ở bước này.
+
+Xem [tiến độ, phụ thuộc và kết quả rà soát M1](../docs/m1-progress.md) trước khi tiếp tục F3–F8. PR F2 vẫn chờ review/merge; không đánh dấu toàn bộ phần việc M1 là hoàn thành.
