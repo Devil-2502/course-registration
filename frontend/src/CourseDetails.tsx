@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { post, request } from './api'
-import type { CourseDetail, Section, ValidationResult, WeeklySchedule } from './api'
+import type { CourseDetail, Section, ValidationResult, WaitlistEntry, WeeklySchedule } from './api'
 import { ErrorNotice, Loading, ViolationNotice } from './components'
 import { days } from './days'
 import { useResource } from './useResource'
@@ -20,6 +20,7 @@ function SectionPreview({ course, section, onRegistered }: {
   const sending = useRef(false)
   const [error, setError] = useState<unknown>()
   const [success, setSuccess] = useState(false)
+  const [waiting, setWaiting] = useState<WaitlistEntry>()
   async function register() {
     if (sending.current || !result.data?.validation.valid || success) return
     sending.current = true; setBusy(true); setError(undefined)
@@ -30,8 +31,17 @@ function SectionPreview({ course, section, onRegistered }: {
       setError(failure); result.retry()
     } finally { sending.current = false; setBusy(false) }
   }
+  // US-09: lớp đầy thì cho vào hàng chờ; máy chủ vẫn tự kiểm tra lại khi nhận yêu cầu
+  async function joinWaitlist() {
+    if (sending.current || waiting) return
+    sending.current = true; setBusy(true); setError(undefined)
+    try {
+      setWaiting(await post<WaitlistEntry>('/waitlist', { sectionId: section.id }))
+    } catch (failure) { setError(failure) } finally { sending.current = false; setBusy(false) }
+  }
   const validation = result.data?.validation
   const clash = validation?.violations.some(violation => violation.code === 'SCHEDULE_CLASH') ?? false
+  const full = validation?.violations.some(violation => violation.code === 'SECTION_FULL') ?? false
   return <section className="preview-panel" aria-label={`Xem trước ${section.code}`}>
     <h2>Xem trước và đăng ký {section.code}</h2>
     <p>Kết quả kiểm tra do máy chủ cung cấp; xem trước không giữ chỗ.</p>
@@ -41,9 +51,13 @@ function SectionPreview({ course, section, onRegistered }: {
     </>}
     {error !== undefined && <ErrorNotice error={error} />}
     {success && <p className="notice success" role="status">Đăng ký thành công lớp {section.code}.</p>}
+    {waiting && <p className="notice success" role="status">
+      Đã vào hàng chờ lớp {section.code}{waiting.position ? `, vị trí ${waiting.position}` : ''}.
+    </p>}
     <button onClick={register} disabled={busy || success || result.loading || !validation?.valid}>
       {busy ? 'Đang đăng ký…' : success ? 'Đã đăng ký' : 'Xác nhận đăng ký'}
     </button>
+    {full && !waiting && <button onClick={joinWaitlist} disabled={busy}>{busy ? 'Đang gửi…' : `Vào hàng chờ ${section.code}`}</button>}
     {validation && !validation.valid && <p>Chưa thể đăng ký: {validation.violations.map(item => item.message).join('; ')}</p>}
   </section>
 }
