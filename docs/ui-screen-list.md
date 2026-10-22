@@ -1,11 +1,11 @@
-# Danh sách màn hình dự kiến - Topic 6
+# Danh sách màn hình - Topic 6
 
 - Người phụ trách: Nguyễn Thiên Trí (M1 - Frontend / UI-UX)
-- Người review: Lê Trung Bảo (M2)
-- Trạng thái: bản nháp khởi đầu, người phụ trách cần rà soát, chỉnh sửa rồi mới đưa cả nhóm review
+- Người review chính: Bùi Quốc Trung (M4); dự phòng: Lê Trung Bảo (M2)
+- Trạng thái: đề xuất theo hướng dẫn M1 phần tiếp; chờ nhóm review. Các màn hình nằm trực tiếp trong `frontend/src/`, tiếp tục cấu trúc đã merge ở PR #25.
 
 Tài liệu liệt kê các màn hình, thành phần dùng chung và luồng điều hướng.
-Wireframe của từng màn hình sẽ lưu trong `docs/wireframes/` (file nguồn và ảnh xuất ra).
+Wireframe của từng màn hình lưu trong `docs/wireframes/` (file nguồn và ảnh xuất ra, xem `docs/wireframes/README.md`).
 
 ## 1. Màn hình
 
@@ -22,7 +22,7 @@ Wireframe của từng màn hình sẽ lưu trong `docs/wireframes/` (file ngu�
 | UI-02 | Trang chủ sinh viên | Học kỳ hiện tại, thời gian đăng ký, số tín chỉ đã đăng ký so với giới hạn, lối tắt tới các trang chính | US-07, US-11 |
 | UI-03 | Tìm kiếm môn học | Ô tìm theo mã hoặc tên, danh sách kết quả có phân trang | US-02 |
 | UI-04 | Chi tiết môn học | Thông tin môn, danh sách môn tiên quyết kèm trạng thái đã đạt hay chưa, các lớp học phần với lịch và số chỗ còn lại, nút đăng ký hoặc vào hàng chờ | US-03, US-04, US-09 |
-| UI-05 | Cổng đăng ký | Danh sách lớp đã chọn, kết quả kiểm tra từng lớp, nút xác nhận đăng ký, hiển thị lý do bị từ chối | US-04, US-05, US-06, US-07 |
+| UI-05 | Cổng đăng ký | Gộp vào UI-04 (quyết định 2, mục 8): đăng ký từng lớp ngay trên thẻ lớp, khóa nút khi trùng lịch, hiển thị lý do bị từ chối theo mã lỗi | US-04, US-05, US-06, US-07 |
 | UI-06 | Thời khóa biểu tuần | Lưới thứ và tiết, mỗi lớp là một khối; xem trước một lớp và tô đỏ ô bị trùng | US-06, US-11 |
 | UI-07 | Môn đã đăng ký | Danh sách lớp đã đăng ký, nút hủy môn, danh sách hàng chờ kèm vị trí, nút rời hàng chờ | US-09, US-10 |
 | UI-08 | Kết quả học tập | Các môn đã học và kết quả, để sinh viên tự đối chiếu môn tiên quyết | US-05 |
@@ -79,7 +79,7 @@ Sinh viên:
 ```
 UI-01 Đăng nhập
   -> UI-02 Trang chủ
-       -> UI-03 Tìm kiếm môn -> UI-04 Chi tiết môn -> UI-05 Cổng đăng ký -> UI-07 Môn đã đăng ký
+       -> UI-03 Tìm kiếm môn -> UI-04 Chi tiết môn (đăng ký, vào hàng chờ, xem trước lịch) -> UI-07 Môn đã đăng ký
        -> UI-06 Thời khóa biểu tuần
        -> UI-07 Môn đã đăng ký
        -> UI-08 Kết quả học tập
@@ -89,8 +89,8 @@ Quản trị:
 
 ```
 UI-01 Đăng nhập
-  -> UI-09 Quản lý môn học -> UI-10 Quản lý môn tiên quyết
-  -> UI-11 Quản lý lớp học phần -> UI-12 Danh sách lớp
+  -> UI-09 Quản lý môn học -> UI-10 Quản lý môn tiên quyết (nút "Tiên quyết")
+                          -> UI-11 Quản lý lớp học phần (nút "Lớp học phần") -> UI-12 Danh sách lớp
 ```
 
 ## 6. API mỗi màn hình cần
@@ -99,26 +99,31 @@ UI-01 Đăng nhập
 |---|---|
 | UI-01 | `POST /auth/login` |
 | UI-02 | `GET /auth/me`, `GET /semesters/current`, `GET /students/me/schedule` |
-| UI-03 | `GET /courses` |
-| UI-04 | `GET /courses/{courseId}`, `POST /registrations/validate` |
-| UI-05 | `POST /registrations/validate`, `POST /registrations`, `POST /waitlist` |
-| UI-06 | `GET /students/me/schedule`, `POST /registrations/validate` |
+| UI-03 | `GET /courses?q=&page=&pageSize=` |
+| UI-04 | `GET /courses/{courseId}`, `GET /students/me/schedule`, `POST /registrations`, `POST /waitlist` |
+| UI-05 | Gộp vào UI-04 |
+| UI-06 | `GET /students/me/schedule` |
 | UI-07 | `GET /registrations`, `DELETE /registrations/{registrationId}`, `GET /waitlist`, `DELETE /waitlist/{entryId}` |
 | UI-08 | `GET /students/me/completed-courses` |
-| UI-09 | `GET /courses`, `POST /courses`, `PUT /courses/{courseId}` |
-| UI-10 | `GET /courses/{courseId}/prerequisites`, `POST` và `DELETE` cùng đường dẫn |
-| UI-11 | `GET /sections`, `POST /sections`, `PUT /sections/{sectionId}` |
+| UI-09 | `GET /courses?pageSize=100`, `POST /courses`, `PUT /courses/{courseId}` |
+| UI-10 | `GET /courses/{courseId}/prerequisites`, `POST` và `DELETE` cùng đường dẫn, `GET /courses` (danh sách để chọn) |
+| UI-11 | `GET /courses/{courseId}` (các lớp của môn), `GET /semesters/current`, `POST /sections`, `PUT /sections/{sectionId}` |
 | UI-12 | `GET /sections/{sectionId}/enrolments`, `GET /sections/{sectionId}/waitlist` |
 
-## 7. Wireframe tuần 1
+Giao diện gọi API qua `frontend/src/api.ts`. Frontend không có chế độ dữ liệu giả; kiểm thử mô phỏng phản hồi fetch.
 
-Vẽ trước bốn màn hình: UI-01 Đăng nhập, UI-03 Tìm kiếm môn học, UI-04 Chi tiết môn học, UI-06 Thời khóa biểu tuần.
-Mỗi màn hình có bản cho máy tính; UI-06 thêm bản cho điện thoại vì lưới 7 cột khó hiển thị trên màn hình hẹp.
+## 7. Wireframe
 
-## 8. Các điểm cần thống nhất
+Đã vẽ đủ 12 màn hình, lưu trong `docs/wireframes/`. Bốn màn hình vẽ trước (tuần 1): UI-01, UI-03, UI-04, UI-06.
+UI-06 có thêm bản cho điện thoại.
 
-1. Trên điện thoại, thời khóa biểu hiển thị dạng lưới thu nhỏ hay dạng danh sách theo ngày.
-2. Cổng đăng ký (UI-05) cho chọn nhiều lớp rồi xác nhận một lần, hay đăng ký từng lớp ngay tại UI-04. Cách thứ nhất cần M2 xác nhận API xử lý nhiều lớp thế nào.
-3. Tên thứ và tiết hiển thị theo quy ước nào (Thứ 2 đến Chủ nhật, tiết 1 đến 15).
-4. Số chỗ còn lại có cần tự cập nhật khi đang mở trang không, hay chỉ cập nhật khi tải lại.
-5. Giao diện quản trị dùng chung bố cục với sinh viên hay tách riêng.
+## 8. Các đề xuất thiết kế chờ nhóm xác nhận
+
+Các điểm dưới đây lấy từ hướng dẫn M1 và code mẫu, chưa phải biên bản thống nhất của nhóm. Reviewer xác nhận hoặc yêu cầu điều chỉnh trước khi merge F1.
+
+1. Trên điện thoại, thời khóa biểu giữ dạng lưới và cuộn ngang (bảng rộng tối thiểu 760px), giống bản máy tính.
+2. Không làm cổng đăng ký nhiều lớp. Sinh viên đăng ký từng lớp ngay tại UI-04, nên không cần API xử lý nhiều lớp một lần.
+3. Thứ hiển thị từ Thứ Hai đến Chủ nhật (`dayOfWeek` 1 đến 7), tiết từ 1 đến 15 (`frontend/src/utils/timetable.ts`).
+4. Số chỗ còn lại cập nhật khi mở trang và sau mỗi thao tác đăng ký, vào hàng chờ, hủy; không tự cập nhật theo thời gian thực.
+5. Quản trị dùng chung bố cục với sinh viên; thanh điều hướng đổi mục theo vai trò.
+6. Câu chữ ghi nguyên văn trong Gherkin giữ đúng tiếng Anh: "No courses found" (US-02), "Passed" (US-03), "Schedule clash with ..." (US-11). Phần còn lại của giao diện dùng tiếng Việt.
