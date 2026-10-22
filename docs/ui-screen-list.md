@@ -2,7 +2,7 @@
 
 - Người phụ trách: Nguyễn Thiên Trí (M1 - Frontend / UI-UX)
 - Người review chính: Bùi Quốc Trung (M4); dự phòng: Lê Trung Bảo (M2)
-- Trạng thái: đề xuất F1 theo hướng dẫn M1; chờ nhóm review. Cấu trúc `frontend/src/pages` sẽ được triển khai lần lượt ở F3–F8.
+- Trạng thái: đề xuất theo hướng dẫn M1 phần tiếp; chờ nhóm review. Các màn hình nằm trực tiếp trong `frontend/src/`, tiếp tục cấu trúc đã merge ở PR #25.
 
 Tài liệu liệt kê các màn hình, thành phần dùng chung và luồng điều hướng.
 Wireframe của từng màn hình lưu trong `docs/wireframes/` (file nguồn và ảnh xuất ra, xem `docs/wireframes/README.md`).
@@ -110,7 +110,7 @@ UI-01 Đăng nhập
 | UI-11 | `GET /courses/{courseId}` (các lớp của môn), `GET /semesters/current`, `POST /sections`, `PUT /sections/{sectionId}` |
 | UI-12 | `GET /sections/{sectionId}/enrolments`, `GET /sections/{sectionId}/waitlist` |
 
-Giao diện gọi API qua `frontend/src/api/api.ts`. Khi chạy với `VITE_USE_MOCK=true`, các hàm này trả dữ liệu giả từ `frontend/src/mocks/`.
+Giao diện gọi API qua `frontend/src/api.ts`. Frontend không có chế độ dữ liệu giả; kiểm thử mô phỏng phản hồi fetch.
 
 ## 7. Wireframe
 
