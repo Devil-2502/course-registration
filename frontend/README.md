@@ -27,15 +27,37 @@ Vite phục vụ tại `http://localhost:5173` và chuyển tiếp `/api` đến
 
 ## Phụ thuộc tích hợp
 
-Backend hiện tại mới có `/api/v1/health`; cần M2/M3 triển khai các endpoint theo hợp đồng trước khi dùng dữ liệu thật:
+Giao diện hiện tại cần M2/M3 cung cấp các endpoint theo hợp đồng trước khi dùng dữ liệu thật:
 
 - `GET /auth/me`, `POST /auth/login`, `POST /auth/logout`.
 - `GET /courses?q=...&page=...&pageSize=20`, `GET /courses/{courseId}`.
 - `GET /students/me/schedule`, có hỗ trợ `semesterId` khi xem trước lớp.
 - `POST /registrations/validate`, `POST /registrations`, body `{ "sectionId": <number> }`.
 
-Không có dữ liệu giả hoặc đăng nhập giả trong mã ứng dụng. Kiểm thử trong `tests/` mô phỏng phản hồi API theo hợp đồng, bao gồm lỗi 401/403/404, lỗi kết nối và lỗi cấp chỗ sau khi xem trước hợp lệ. Chúng kiểm tra giao diện và yêu cầu HTTP, không chứng minh backend đã triển khai hoặc hệ thống đã tích hợp hoàn chỉnh. Ngưỡng coverage đặt ở 60% cho dòng, câu lệnh, hàm và nhánh.
+Kiểm thử trong `tests/` mô phỏng phản hồi API theo hợp đồng, bao gồm lỗi 401/403/404, lỗi kết nối và lỗi cấp chỗ sau khi xem trước hợp lệ. Chúng kiểm tra giao diện và yêu cầu HTTP, không chứng minh hệ thống đã tích hợp hoàn chỉnh. Ngưỡng coverage đặt ở 60% cho dòng, câu lệnh, hàm và nhánh.
 
 Trên màn hình hẹp, bảng thời khóa biểu cuộn ngang để giữ đủ 7 ngày. Số chỗ được cập nhật bằng nút tải lại và sau đăng ký, không tự thăm dò liên tục.
 
-Kết quả kiểm tra trên Node.js 24.21.0: build thành công, lint không cảnh báo; 17/17 kiểm thử qua. Báo cáo Vitest: lines 95.90%, statements 92.77%, functions 91.93%, branches 87.87%. Chưa kiểm thử chạy ảnh Docker và chưa kiểm thử tích hợp với API thật.
+## F2 — lớp API và dữ liệu giả (Task #35)
+
+Theo hướng dẫn M1 và `Code-mau-M1-Tri.zip`, F2 bổ sung:
+
+- `src/api/types.ts`: kiểu dữ liệu theo OpenAPI; `client.ts`: fetch dùng cookie, lỗi HTTP, lỗi mạng và phản hồi 204.
+- `src/api/api.ts`: hàm endpoint cho đăng nhập, danh mục, đăng ký, hàng chờ, học tập và quản trị.
+- `src/mocks/`: bộ dữ liệu và API giả để phát triển giao diện độc lập với backend. Chỉ mô phỏng các quy tắc chính, không thay kiểm thử nghiệp vụ backend, giao dịch đồng thời hay tự động đẩy hàng chờ.
+- `src/utils/`: dựng lưới thời khóa biểu, định vị xung đột để tô màu và thông báo lỗi tiếng Việt, kèm 14 unit test từ mẫu.
+
+`api` chọn dữ liệu giả khi `VITE_USE_MOCK=true`, mặc định dùng API thật. Có thể đổi địa chỉ API thật bằng `VITE_API_URL`; mặc định `/api/v1` để tận dụng proxy Vite/Nginx hiện có. Ví dụ cấu hình trong `frontend/.env` (tự tạo, không commit):
+
+```dotenv
+VITE_USE_MOCK=true
+# VITE_API_URL=http://localhost:3000/api/v1
+```
+
+Tài khoản giả: `std_402@student.edu.vn` và `admin1@tdtu.edu.vn`, mật khẩu chung `Password@123`; chỉ phục vụ demo, không phải thông tin đăng nhập thật. Trạng thái giả nằm trong bộ nhớ, tải lại trang sẽ khởi tạo lại dữ liệu.
+
+**F2 chưa chuyển App.tsx sang lớp API mới.** Giao diện đã merge vẫn dùng `src/api.ts`; cấu hình mock ở trên phục vụ lớp mới và các trang F3–F8 khi được tích hợp sau. Giữ hai lớp song song ở bước này để tránh thay luồng đang có trước khi review F2. Không sao chép toàn bộ mã mẫu vào một nhánh.
+
+Nguồn tham khảo: tài liệu `Huong-dan-M1-Nguyen-Thien-Tri.docx` và gói `Code-mau-M1-Tri.zip` do nhóm cung cấp. Đã điều chỉnh client dùng proxy cùng nguồn và `SectionInput.lecturerName` theo kiểu chuỗi tùy chọn trong OpenAPI hiện tại.
+
+Kết quả F2: lint không cảnh báo, build thành công, 44/44 kiểm thử qua; coverage dòng 87,53%, câu lệnh 87,29%, hàm 82,75%, nhánh 78,23%. Chưa kiểm thử tích hợp với backend thật và chưa chạy ảnh Docker ở bước này.
