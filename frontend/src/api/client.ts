@@ -18,12 +18,15 @@ export class ApiError extends Error {
 }
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+  // RequestInit chấp nhận cả Headers, mảng cặp và object; không trải Headers thành object.
+  const headers = new Headers(options.headers);
+  if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   let response: Response;
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       ...options,
       credentials: 'include', // gửi kèm cookie phiên đăng nhập
-      headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers },
+      headers,
     });
   } catch {
     throw new ApiError(0, { code: 'NETWORK_ERROR', message: 'Không kết nối được tới máy chủ.' });

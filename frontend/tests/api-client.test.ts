@@ -7,8 +7,20 @@ it('gửi body JSON và cookie qua đường dẫn cùng nguồn', async () => {
   const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"id":7}', { status: 201 }));
   await expect(apiFetch('/registrations', { method: 'POST', body: jsonBody({ sectionId: 22 }) })).resolves.toEqual({ id: 7 });
   expect(fetch).toHaveBeenCalledWith('/api/v1/registrations', expect.objectContaining({
-    credentials: 'include', method: 'POST', body: '{"sectionId":22}', headers: { 'Content-Type': 'application/json' },
+    credentials: 'include', method: 'POST', body: '{"sectionId":22}',
   }));
+  expect(new Headers(fetch.mock.calls[0][1]?.headers).get('Content-Type')).toBe('application/json');
+});
+
+it.each([
+  new Headers({ 'X-Request-ID': 'request-1', 'Content-Type': 'application/custom+json' }),
+  [['X-Request-ID', 'request-1'], ['Content-Type', 'application/custom+json']] as [string, string][],
+])('giữ header do nơi gọi truyền vào qua các dạng RequestInit', async (headers) => {
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}'));
+  await apiFetch('/registrations', { method: 'POST', body: '{}', headers });
+  const sent = new Headers(fetch.mock.calls[0][1]?.headers);
+  expect(sent.get('X-Request-ID')).toBe('request-1');
+  expect(sent.get('Content-Type')).toBe('application/custom+json');
 });
 
 it('không đọc JSON khi phản hồi là 204', async () => {
