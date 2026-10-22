@@ -174,10 +174,10 @@ Luôn khóa theo một thứ tự cố định (sinh viên trước, lớp sau) 
 - 1 lớp chỉ còn đúng 1 chỗ, 1 lớp đã đầy và có sẵn hàng chờ.
 - Kết quả học: sinh viên đã đạt, sinh viên rớt môn tiên quyết, sinh viên chưa học.
 
-## 7. Các điểm cần thống nhất
+## 7. Các quyết định đã chốt
 
-1. Giữ cột `enrolled_count` (đọc nhanh, phải cập nhật trong transaction) hay đếm trực tiếp từ `enrolments` mỗi lần.
-2. Phiên đăng nhập lưu ở đâu: bảng `sessions` trong PostgreSQL hay bộ nhớ của server.
-3. Dùng công cụ migration nào, hay viết file SQL đánh số trong `backend/db/migrations/`.
-4. Có cần bảng ghi lại lịch sử thao tác đăng ký và hủy môn để đối chiếu khi demo không.
-5. Giới hạn tín chỉ đặt theo học kỳ (như bản nháp) hay theo từng sinh viên.
+1. Giữ cột `enrolled_count` để đọc số chỗ nhanh; chỉ cập nhật trong transaction đăng ký và hủy môn, có ràng buộc `CHECK (enrolled_count <= capacity)` làm lớp chắn cuối.
+2. Phiên đăng nhập lưu trong bảng `sessions` của PostgreSQL (migration 002), cookie `sid` chứa id phiên. Lý do: đăng xuất là xóa dòng, phiên còn hiệu lực sau khi khởi động lại server, không cần thêm thư viện.
+3. Migration là các file SQL đánh số trong `backend/db/migrations/`, chạy theo thứ tự tên file.
+4. Chưa có bảng lịch sử thao tác; trạng thái `DROPPED`, `PROMOTED`, `SKIPPED` đủ để đối chiếu khi demo.
+5. Giới hạn tín chỉ đặt theo học kỳ (cột `semesters.max_credits`, mặc định 24).
