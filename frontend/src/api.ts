@@ -55,6 +55,29 @@ export interface WeeklySchedule {
   maxCredits: number
   entries: ScheduleEntry[]
 }
+export interface Registration {
+  id: number
+  studentId: number
+  section: Section
+  course?: Course
+  status: 'ENROLLED' | 'DROPPED'
+  createdAt: string
+}
+export interface WaitlistEntry {
+  id: number
+  studentId: number
+  sectionId: number
+  section?: Section // backend có thể trả kèm lớp để hiện mã lớp
+  position?: number | null
+  status: 'WAITING' | 'PROMOTED' | 'SKIPPED' | 'CANCELLED'
+  createdAt: string
+}
+export interface CompletedCourse {
+  course: Course
+  semesterCode?: string
+  grade: number
+  passed: boolean
+}
 export interface User {
   id: number
   email: string
@@ -73,10 +96,13 @@ export class ApiError extends Error {
   }
 }
 export async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  // Giữ header ở mọi dạng hợp lệ của RequestInit, kể cả Headers và mảng cặp.
+  const headers = new Headers(options.headers)
+  if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
   const response = await fetch(`/api/v1${path}`, {
     ...options,
     credentials: 'include',
-    headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers },
+    headers,
   })
   if (!response.ok) {
     const error = await response.json().catch(() => ({
@@ -89,4 +115,7 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
 }
 export function post<T>(path: string, body: unknown) {
   return request<T>(path, { method: 'POST', body: JSON.stringify(body) })
+}
+export function remove(path: string) {
+  return request<void>(path, { method: 'DELETE' })
 }
