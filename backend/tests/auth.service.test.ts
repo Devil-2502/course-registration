@@ -21,11 +21,13 @@ const mockVerifyPassword = jest.mocked(verifyPassword);
 const mockCreateSession = jest.mocked(createSession);
 
 const student = {
+  
   id: '1',
   email: 'std_402@student.edu.vn',
   password_hash: 'stored-hash',
   full_name: 'Nguyen Van A',
   role: 'STUDENT' as const,
+  student_id: '1',
   student_code: '52400001',
 };
 

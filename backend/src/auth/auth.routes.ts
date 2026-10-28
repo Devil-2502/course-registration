@@ -1,3 +1,4 @@
+import { requireAuth } from './auth.middleware';
 import { Router } from 'express';
 import { AppError } from '../common/app-error';
 import { login } from './auth.service';
@@ -60,4 +61,29 @@ authRouter.post('/logout', async (req, res) => {
   });
 
   res.status(204).send();
+});
+
+
+/**
+ * GET /api/v1/auth/me
+ * Lấy thông tin người dùng đang đăng nhập.
+ */
+authRouter.get('/me', requireAuth, (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new AppError(
+      'UNAUTHENTICATED',
+      401,
+      'Authentication required.',
+    );
+  }
+
+  res.status(200).json({
+    id: user.id,
+    email: user.email,
+    fullName: user.fullName,
+    role: user.role,
+    studentCode: user.studentCode,
+  });
 });

@@ -2,6 +2,8 @@ import request from 'supertest';
 import { createApp } from '../src/app';
 import { login } from '../src/auth/auth.service';
 import { deleteSession } from '../src/auth/auth.session';
+import { findSessionUserId } from '../src/auth/auth.session';
+import { findUserById } from '../src/auth/auth.repository';
 
 jest.mock('../src/auth/auth.service', () => ({
   login: jest.fn(),
@@ -12,8 +14,13 @@ jest.mock('../src/auth/auth.session', () => ({
   findSessionUserId: jest.fn(),
   deleteSession: jest.fn(),
 }));
+jest.mock('../src/auth/auth.repository', () => ({
+  findUserById: jest.fn(),
+}));
 
 const mockLogin = jest.mocked(login);
+const mockFindSession = jest.mocked(findSessionUserId);
+const mockFindUser = jest.mocked(findUserById);
 
 describe('Auth Routes - POST /api/v1/auth/login', () => {
   const app = createApp();
@@ -157,4 +164,61 @@ describe('Auth Routes - POST /api/v1/auth/login', () => {
     expect(response.body.code).toBe('INTERNAL_ERROR');
   });
 });
+
+  describe('GET /api/v1/auth/me', () => {
+    test('Without session returns 401', async () => {
+      const response = await request(app)
+        .get('/api/v1/auth/me');
+
+      expect(response.status).toBe(401);
+      expect(response.body.code).toBe('UNAUTHENTICATED');
+      expect(mockFindUser).not.toHaveBeenCalled();
+    });
+
+    test('Valid session returns current user', async () => {
+      mockFindSession.mockResolvedValue('1');
+
+      mockFindUser.mockResolvedValue({
+        id: '1',
+        email: 'std_402@student.edu.vn',
+        password_hash: 'hashed-password',
+        full_name: 'Nguyen Van A',
+        role: 'STUDENT',
+        student_id: '10',
+        student_code: '52400001',
+      });
+
+      const response = await request(app)
+        .get('/api/v1/auth/me')
+        .set('Cookie', 'sid=valid-session');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        id: 1,
+        email: 'std_402@student.edu.vn',
+        fullName: 'Nguyen Van A',
+        role: 'STUDENT',
+        studentCode: '52400001',
+      });
+
+      expect(response.body).not.toHaveProperty('password_hash');
+      expect(mockFindSession).toHaveBeenCalledWith(
+        'valid-session',
+      );
+      expect(mockFindUser).toHaveBeenCalledWith('1');
+    });
+
+    test('Expired session returns 401', async () => {
+      mockFindSession.mockResolvedValue(null);
+
+      const response = await request(app)
+        .get('/api/v1/auth/me')
+        .set('Cookie', 'sid=expired-session');
+
+      expect(response.status).toBe(401);
+      expect(response.body.code).toBe('UNAUTHENTICATED');
+      expect(mockFindUser).not.toHaveBeenCalled();
+    });
+  });
+
 });
