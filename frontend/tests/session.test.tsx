@@ -33,10 +33,11 @@ describe('Phiên đăng nhập và API', () => {
     expect(await screen.findByLabelText('Email trường')).toBeVisible()
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   })
-  it('không hiển thị cổng sinh viên cho quản trị', async () => {
-    mockApi(() => json({ ...user, role: 'ADMIN' }))
+  it('quản trị vào trang quản lý môn học, không thấy mục của sinh viên', async () => {
+    mockApi(path => path.endsWith('/auth/me') ? json({ ...user, role: 'ADMIN' }) : json({ items: [], page: 1, pageSize: 100, total: 0 }))
     render(<App />)
-    expect(await screen.findByRole('alert')).toHaveTextContent('dành cho sinh viên')
+    expect(await screen.findByRole('heading', { name: 'Quản lý môn học' })).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Danh mục môn học' })).not.toBeInTheDocument()
   })
   it('phản hồi không phải JSON vẫn cho thông báo lỗi HTTP', async () => {
     mockApi(() => new Response('Bad gateway', { status: 502 }))
