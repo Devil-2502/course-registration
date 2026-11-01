@@ -84,6 +84,36 @@ export interface User {
   fullName: string
   role: 'STUDENT' | 'ADMIN'
 }
+export interface Semester {
+  id: number
+  code: string
+  name: string
+  registrationStart: string
+  registrationEnd: string
+  maxCredits: number
+  registrationOpen?: boolean
+}
+export interface CourseInput {
+  code: string
+  name: string
+  credits: number
+  description?: string
+}
+export interface SectionInput {
+  courseId: number
+  semesterId: number
+  code: string
+  lecturerName?: string
+  capacity: number
+  slots: Slot[]
+}
+export interface SectionEnrolment extends Registration {
+  studentCode?: string
+  studentName?: string
+}
+export interface SectionWaitlistEntry extends WaitlistEntry {
+  studentCode?: string
+}
 export class ApiError extends Error {
   status: number
   code: string
@@ -118,4 +148,7 @@ export function post<T>(path: string, body: unknown) {
 }
 export function remove(path: string) {
   return request<void>(path, { method: 'DELETE' })
+}
+export function put<T>(path: string, body: unknown) {
+  return request<T>(path, { method: 'PUT', body: JSON.stringify(body) })
 }

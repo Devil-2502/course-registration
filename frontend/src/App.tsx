@@ -4,6 +4,7 @@ import { post, request } from './api'
 import type { User } from './api'
 import { ErrorNotice, Loading } from './components'
 import { useResource } from './useResource'
+import Admin from './admin/Admin'
 import Catalog from './Catalog'
 import CompletedCourses from './CompletedCourses'
 import CourseDetails from './CourseDetails'
@@ -58,14 +59,16 @@ function App() {
   </main>
   return <>
     <header><div><strong>Đăng ký học phần</strong><p>{user.fullName}</p></div><nav aria-label="Điều hướng chính">
-      <button aria-current={page === 'catalog' ? 'page' : undefined} onClick={() => open('catalog')}>Danh mục môn học</button>
-      <button aria-current={page === 'schedule' ? 'page' : undefined} onClick={() => open('schedule')}>Thời khóa biểu tuần</button>
-      <button aria-current={page === 'registrations' ? 'page' : undefined} onClick={() => open('registrations')}>Môn đã đăng ký</button>
-      <button aria-current={page === 'completed' ? 'page' : undefined} onClick={() => open('completed')}>Kết quả học tập</button>
+      {user.role === 'STUDENT' && <>
+        <button aria-current={page === 'catalog' ? 'page' : undefined} onClick={() => open('catalog')}>Danh mục môn học</button>
+        <button aria-current={page === 'schedule' ? 'page' : undefined} onClick={() => open('schedule')}>Thời khóa biểu tuần</button>
+        <button aria-current={page === 'registrations' ? 'page' : undefined} onClick={() => open('registrations')}>Môn đã đăng ký</button>
+        <button aria-current={page === 'completed' ? 'page' : undefined} onClick={() => open('completed')}>Kết quả học tập</button>
+      </>}
       <button disabled={busy} onClick={logout}>Đăng xuất</button>
     </nav></header>
     <main>{error !== undefined && <ErrorNotice error={error} />}
-      {user.role !== 'STUDENT' ? <p role="alert">Cổng đăng ký này dành cho sinh viên.</p> : page === 'schedule' ?
+      {user.role === 'ADMIN' ? <Admin /> : page === 'schedule' ?
         <Schedule catalog={() => open('catalog')} /> : page === 'registrations' ?
         <MyRegistrations catalog={() => open('catalog')} /> : page === 'completed' ?
         <CompletedCourses /> : courseId !== undefined ?
