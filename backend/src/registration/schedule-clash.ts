@@ -22,10 +22,7 @@ export function sectionsClash(a: SectionSchedule, b: SectionSchedule): boolean {
 
 // Trả về id của các lớp đã đăng ký bị trùng lịch với lớp đang muốn đăng ký.
 // Mảng rỗng nghĩa là sinh viên có thể đăng ký lớp mới.
-export function findClashes(
-  target: SectionSchedule,
-  enrolled: SectionSchedule[],
-): number[] {
+export function findClashes(target: SectionSchedule, enrolled: SectionSchedule[]): number[] {
   return enrolled
     .filter((section) => section.sectionId !== target.sectionId)
     .filter((section) => sectionsClash(target, section))

@@ -53,7 +53,6 @@ describe('addPrerequisite', () => {
   });
 });
 
-
 describe('quan hệ trùng và gỡ quan hệ', () => {
   test('từ chối quan hệ đã tồn tại', () => {
     const graph = buildGraph();

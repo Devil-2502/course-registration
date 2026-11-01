@@ -94,3 +94,7 @@ Stress test chạy thủ công trước mỗi mốc nộp, không chạy ở m�
 2. Cách đặt lại dữ liệu giữa các lần chạy test: nạp lại toàn bộ, hay mỗi test tự tạo dữ liệu riêng.
 3. Test có cần chạy được khi đợt đăng ký đã đóng không (cần cách chỉnh thời gian của học kỳ trong dữ liệu test).
 4. Ngưỡng độ phủ đặt trong cấu hình Jest để CI tự chặn, hay kiểm tra bằng mắt.
+
+## 9. Triển khai M4
+
+Xem [hướng dẫn bàn giao và GitHub](../docs/m4-github-guide.md). Smoke health chạy mặc định; dùng npm run test:db để bật DB suite với DATABASE_URL riêng có đuôi _test và ALLOW_TEST_DB_RESET=1. Stress test: npm run test:load -- --runs 5. Các test fixme chưa chứng minh API đã hoàn thành.
