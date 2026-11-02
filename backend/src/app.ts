@@ -2,6 +2,8 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import { errorHandler, notFoundHandler } from './common/error-handler';
+import { authRouter } from './auth/auth.routes';
+import { requireAuth } from './auth/auth.middleware';
 
 // Các địa chỉ frontend được phép gọi API kèm cookie (Vite dev và bản Docker).
 const allowedOrigins = (
@@ -21,7 +23,11 @@ export function createApp() {
   });
 
   // Mỗi thành viên gắn router của mình ở đây, ví dụ:
-  // app.use('/api/v1/auth', authRouter);
+  app.use('/api/v1/auth', authRouter);
+
+  // Bảo vệ API đăng ký học phần.
+  // Registration Router sẽ được gắn sau middleware này.
+  app.use('/api/v1/registrations', requireAuth);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
