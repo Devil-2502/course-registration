@@ -30,7 +30,10 @@ export function createCoursesRouter(reader: CourseReader): Router {
     const courseId = parseId(req.params.courseId, 'courseId');
     const semesterId =
       req.query.semesterId === undefined ? undefined : parseId(req.query.semesterId, 'semesterId');
-    const course = await reader.findDetail(courseId, { semesterId });
+    // Sinh viên đang đăng nhập thì kèm studentId để tính "đã đạt" cho từng môn tiên quyết.
+    // studentId trong req.user là chuỗi (BIGINT của pg) nên đổi sang số; quản trị viên không có studentId.
+    const studentId = req.user?.studentId ? Number(req.user.studentId) : undefined;
+    const course = await reader.findDetail(courseId, { semesterId, studentId });
     if (!course) throw notFound('Course');
     res.json(course);
   });

@@ -63,6 +63,21 @@ let baseUrl: string;
 // Chạy router thật trên một cổng ngẫu nhiên, gửi request bằng fetch có sẵn của Node.
 beforeAll(async () => {
   const app = express();
+  // Giả lập requireAuth: header X-Test-Student là id sinh viên, dạng chuỗi như pg trả về.
+  app.use((req, _res, next) => {
+    const studentId = req.header('X-Test-Student');
+    if (studentId) {
+      req.user = {
+        id: 1,
+        email: 'std_402@student.edu.vn',
+        fullName: 'Student 402',
+        role: 'STUDENT',
+        studentId,
+        studentCode: 'std_402',
+      };
+    }
+    next();
+  });
   app.use('/api/v1/courses', createCoursesRouter(reader));
   app.use(errorHandler);
   server = app.listen(0);
@@ -124,6 +139,11 @@ describe('GET /api/v1/courses/:courseId (US-03)', () => {
       room: 'A101',
     });
     expect(reader.findDetail).toHaveBeenCalledWith(2, { semesterId: undefined });
+  });
+
+  it('Sinh viên đang đăng nhập: chuyển studentId (đổi sang số) để tính môn tiên quyết đã đạt', async () => {
+    await fetch(`${baseUrl}/2`, { headers: { 'X-Test-Student': '402' } });
+    expect(reader.findDetail).toHaveBeenCalledWith(2, { semesterId: undefined, studentId: 402 });
   });
 
   it('Truyền semesterId thì chuyển xuống nguồn dữ liệu', async () => {
