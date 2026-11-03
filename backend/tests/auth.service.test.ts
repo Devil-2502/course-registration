@@ -21,7 +21,6 @@ const mockVerifyPassword = jest.mocked(verifyPassword);
 const mockCreateSession = jest.mocked(createSession);
 
 const student = {
-  
   id: '1',
   email: 'std_402@student.edu.vn',
   password_hash: 'stored-hash',
@@ -46,14 +45,9 @@ describe('Auth Service - Student Login', () => {
       password: 'Student@123',
     });
 
-    expect(mockFindUser).toHaveBeenCalledWith(
-      'std_402@student.edu.vn',
-    );
+    expect(mockFindUser).toHaveBeenCalledWith('std_402@student.edu.vn');
 
-    expect(mockVerifyPassword).toHaveBeenCalledWith(
-      'Student@123',
-      'stored-hash',
-    );
+    expect(mockVerifyPassword).toHaveBeenCalledWith('Student@123', 'stored-hash');
 
     expect(mockCreateSession).toHaveBeenCalledWith('1');
 

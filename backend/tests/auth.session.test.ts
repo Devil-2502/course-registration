@@ -1,10 +1,6 @@
 import { pool } from '../src/db/pool';
 
-import {
-  createSession,
-  findSessionUserId,
-  deleteSession,
-} from '../src/auth/auth.session';
+import { createSession, findSessionUserId, deleteSession } from '../src/auth/auth.session';
 
 jest.mock('../src/db/pool', () => ({
   pool: {
@@ -26,14 +22,11 @@ describe('Session Management', () => {
 
     expect(sessionId).toMatch(/^[0-9a-f]{64}$/);
 
-    expect(mockQuery).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO sessions'),
-      [
-        expect.stringMatching(/^[0-9a-f]{64}$/),
-        '1',
-        expect.any(Date),
-      ],
-    );
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO sessions'), [
+      expect.stringMatching(/^[0-9a-f]{64}$/),
+      '1',
+      expect.any(Date),
+    ]);
 
     // Không lưu session ID gốc trong database.
     const storedId = mockQuery.mock.calls[0][1][0];
@@ -75,10 +68,9 @@ describe('Session Management', () => {
 
     await deleteSession('a'.repeat(64));
 
-    expect(mockQuery).toHaveBeenCalledWith(
-      'DELETE FROM sessions WHERE id = $1',
-      [expect.stringMatching(/^[0-9a-f]{64}$/)],
-    );
+    expect(mockQuery).toHaveBeenCalledWith('DELETE FROM sessions WHERE id = $1', [
+      expect.stringMatching(/^[0-9a-f]{64}$/),
+    ]);
   });
 
   test('Should not delete an invalid session ID', async () => {
