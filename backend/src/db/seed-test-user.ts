@@ -2,13 +2,11 @@ import { pool } from './pool';
 import { hashPassword } from '../auth/auth.password';
 
 async function main() {
-   const email = 'std_402@student.edu.vn';
+  const email = 'std_402@student.edu.vn';
   const password = process.env.TEST_STUDENT_PASSWORD;
 
   if (!password) {
-    throw new Error(
-      'TEST_STUDENT_PASSWORD environment variable is required.',
-    );
+    throw new Error('TEST_STUDENT_PASSWORD environment variable is required.');
   }
 
   const passwordHash = await hashPassword(password);

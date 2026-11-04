@@ -1,4 +1,3 @@
-
 import { pool } from '../db/pool';
 import type { UserRole } from './auth.types';
 
@@ -14,9 +13,7 @@ export interface AuthUserRecord {
 }
 
 // Tìm tài khoản theo email khi đăng nhập.
-export async function findUserByEmail(
-  email: string,
-): Promise<AuthUserRecord | null> {
+export async function findUserByEmail(email: string): Promise<AuthUserRecord | null> {
   const result = await pool.query<AuthUserRecord>(
     `
     SELECT
@@ -40,9 +37,7 @@ export async function findUserByEmail(
 }
 
 // Tìm tài khoản theo ID lấy từ session.
-export async function findUserById(
-  userId: string,
-): Promise<AuthUserRecord | null> {
+export async function findUserById(userId: string): Promise<AuthUserRecord | null> {
   const result = await pool.query<AuthUserRecord>(
     `
     SELECT

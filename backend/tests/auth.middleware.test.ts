@@ -1,12 +1,8 @@
-
 import request from 'supertest';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 
-import {
-  requireAuth,
-  requireRole,
-} from '../src/auth/auth.middleware';
+import { requireAuth, requireRole } from '../src/auth/auth.middleware';
 import { findSessionUserId } from '../src/auth/auth.session';
 import { findUserById } from '../src/auth/auth.repository';
 import { errorHandler } from '../src/common/error-handler';
@@ -38,20 +34,13 @@ describe('Authentication Middleware', () => {
     });
   });
 
- 
-
-  app.get(
-  '/admin',
-  requireAuth,
-  requireRole('ADMIN'),
-  (_req, res) => {
+  app.get('/admin', requireAuth, requireRole('ADMIN'), (_req, res) => {
     res.status(200).json({
       message: 'Welcome Admin',
     });
-  },
-);
+  });
 
- app.use(errorHandler);
+  app.use(errorHandler);
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -70,16 +59,12 @@ describe('Authentication Middleware', () => {
   test('Invalid or expired session returns 401', async () => {
     mockFindSession.mockResolvedValue(null);
 
-    const response = await request(app)
-      .get('/protected')
-      .set('Cookie', 'sid=invalid-session');
+    const response = await request(app).get('/protected').set('Cookie', 'sid=invalid-session');
 
     expect(response.status).toBe(401);
     expect(response.body.code).toBe('UNAUTHENTICATED');
 
-    expect(mockFindSession).toHaveBeenCalledWith(
-      'invalid-session',
-    );
+    expect(mockFindSession).toHaveBeenCalledWith('invalid-session');
     expect(mockFindUser).not.toHaveBeenCalled();
   });
 
@@ -96,9 +81,7 @@ describe('Authentication Middleware', () => {
       student_code: '402',
     });
 
-    const response = await request(app)
-      .get('/protected')
-      .set('Cookie', 'sid=valid-session');
+    const response = await request(app).get('/protected').set('Cookie', 'sid=valid-session');
 
     expect(response.status).toBe(200);
 
@@ -115,9 +98,7 @@ describe('Authentication Middleware', () => {
       },
     });
 
-    expect(mockFindSession).toHaveBeenCalledWith(
-      'valid-session',
-    );
+    expect(mockFindSession).toHaveBeenCalledWith('valid-session');
     expect(mockFindUser).toHaveBeenCalledWith('1');
   });
 
@@ -125,14 +106,12 @@ describe('Authentication Middleware', () => {
     mockFindSession.mockResolvedValue('1');
     mockFindUser.mockResolvedValue(null);
 
-    const response = await request(app)
-      .get('/protected')
-      .set('Cookie', 'sid=valid-session');
+    const response = await request(app).get('/protected').set('Cookie', 'sid=valid-session');
 
     expect(response.status).toBe(401);
     expect(response.body.code).toBe('UNAUTHENTICATED');
   });
-  
+
   test('Unauthenticated user cannot access admin route', async () => {
     const response = await request(app).get('/admin');
 
@@ -153,9 +132,7 @@ describe('Authentication Middleware', () => {
       student_code: '52400001',
     });
 
-    const response = await request(app)
-      .get('/admin')
-      .set('Cookie', 'sid=student-session');
+    const response = await request(app).get('/admin').set('Cookie', 'sid=student-session');
 
     expect(response.status).toBe(403);
     expect(response.body.code).toBe('FORBIDDEN');
@@ -174,14 +151,11 @@ describe('Authentication Middleware', () => {
       student_code: null,
     });
 
-    const response = await request(app)
-      .get('/admin')
-      .set('Cookie', 'sid=admin-session');
+    const response = await request(app).get('/admin').set('Cookie', 'sid=admin-session');
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       message: 'Welcome Admin',
     });
   });
-
 });

@@ -15,48 +15,37 @@ const dummyHash = `scrypt:${dummySalt}:${scryptSync(
   64,
 ).toString('hex')}`;
 
-
 export interface LoginResult {
   user: AuthUser;
   sessionId: string;
 }
 
-export async function login(
-  credentials: LoginRequest,
-): Promise<LoginResult> {
+export async function login(credentials: LoginRequest): Promise<LoginResult> {
   const email = credentials.email.trim().toLowerCase();
 
   // Bước 1: Tìm tài khoản.
- const user = await findUserByEmail(email);
+  const user = await findUserByEmail(email);
 
-// Luôn thực hiện kiểm tra mật khẩu,
-// kể cả khi không tìm thấy tài khoản.
-const passwordValid = await verifyPassword(
-  credentials.password,
-  user?.password_hash ?? dummyHash,
-);
-
-if (!user || !passwordValid) {
-  throw new AppError(
-    'INVALID_CREDENTIALS',
-    401,
-    'Invalid email or password.',
+  // Luôn thực hiện kiểm tra mật khẩu,
+  // kể cả khi không tìm thấy tài khoản.
+  const passwordValid = await verifyPassword(
+    credentials.password,
+    user?.password_hash ?? dummyHash,
   );
-}
+
+  if (!user || !passwordValid) {
+    throw new AppError('INVALID_CREDENTIALS', 401, 'Invalid email or password.');
+  }
 
   // Bước 3: Kiểm tra ID trước khi tạo session.
-const userId = Number(user.id);
+  const userId = Number(user.id);
 
-if (!Number.isSafeInteger(userId) || userId <= 0) {
-  throw new AppError(
-    'INTERNAL_ERROR',
-    500,
-    'User ID is outside the safe integer range.',
-  );
-}
+  if (!Number.isSafeInteger(userId) || userId <= 0) {
+    throw new AppError('INTERNAL_ERROR', 500, 'User ID is outside the safe integer range.');
+  }
 
-// Bước 4: Tạo session sau khi dữ liệu hợp lệ.
-const sessionId = await createSession(user.id);
+  // Bước 4: Tạo session sau khi dữ liệu hợp lệ.
+  const sessionId = await createSession(user.id);
 
   // Bước 5: Trả về thông tin người dùng.
   return {

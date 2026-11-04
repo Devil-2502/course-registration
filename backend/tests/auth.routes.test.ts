@@ -25,13 +25,12 @@ const mockFindUser = jest.mocked(findUserById);
 describe('Auth Routes - POST /api/v1/auth/login', () => {
   const app = createApp();
   test('Registrations without session returns 401', async () => {
-  const response = await request(app)
-    .get('/api/v1/registrations');
+    const response = await request(app).get('/api/v1/registrations');
 
-  expect(response.status).toBe(401);
+    expect(response.status).toBe(401);
 
-  expect(response.body.code).toBe('UNAUTHENTICATED');
-});
+    expect(response.body.code).toBe('UNAUTHENTICATED');
+  });
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -49,21 +48,17 @@ describe('Auth Routes - POST /api/v1/auth/login', () => {
       },
     });
 
-    const response = await request(app)
-      .post('/api/v1/auth/login')
-      .send({
-        email: 'std_402@student.edu.vn',
-        password: 'Student@123',
-      });
+    const response = await request(app).post('/api/v1/auth/login').send({
+      email: 'std_402@student.edu.vn',
+      password: 'Student@123',
+    });
 
     expect(response.status).toBe(200);
     expect(response.body.role).toBe('STUDENT');
     expect(response.body.email).toBe('std_402@student.edu.vn');
 
     expect(response.headers['set-cookie']).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('sid=test-session-id'),
-      ]),
+      expect.arrayContaining([expect.stringContaining('sid=test-session-id')]),
     );
 
     const cookieHeader = response.headers['set-cookie'][0];
@@ -73,11 +68,9 @@ describe('Auth Routes - POST /api/v1/auth/login', () => {
   });
 
   test('Missing password returns 400', async () => {
-    const response = await request(app)
-      .post('/api/v1/auth/login')
-      .send({
-        email: 'std_402@student.edu.vn',
-      });
+    const response = await request(app).post('/api/v1/auth/login').send({
+      email: 'std_402@student.edu.vn',
+    });
 
     expect(response.status).toBe(400);
     expect(response.body.code).toBe('VALIDATION_ERROR');
@@ -85,90 +78,71 @@ describe('Auth Routes - POST /api/v1/auth/login', () => {
   });
 
   test('Wrong password returns 401', async () => {
-    const error = Object.assign(
-      new Error('Invalid email or password.'),
-      {
-        code: 'INVALID_CREDENTIALS',
-        status: 401,
-      },
-    );
+    const error = Object.assign(new Error('Invalid email or password.'), {
+      code: 'INVALID_CREDENTIALS',
+      status: 401,
+    });
 
     // Dùng AppError thật để kiểm tra error handler.
     const { AppError } = await import('../src/common/app-error');
 
-    mockLogin.mockRejectedValue(
-      new AppError(
-        'INVALID_CREDENTIALS',
-        401,
-        error.message,
-      ),
-    );
+    mockLogin.mockRejectedValue(new AppError('INVALID_CREDENTIALS', 401, error.message));
 
-    const response = await request(app)
-      .post('/api/v1/auth/login')
-      .send({
-        email: 'std_402@student.edu.vn',
-        password: 'WrongPassword',
-      });
+    const response = await request(app).post('/api/v1/auth/login').send({
+      email: 'std_402@student.edu.vn',
+      password: 'WrongPassword',
+    });
 
     expect(response.status).toBe(401);
     expect(response.body.code).toBe('INVALID_CREDENTIALS');
     expect(response.headers['set-cookie']).toBeUndefined();
   });
   describe('POST /api/v1/auth/logout', () => {
-  const mockDeleteSession = jest.mocked(deleteSession);
+    const mockDeleteSession = jest.mocked(deleteSession);
 
-  beforeEach(() => {
-    mockDeleteSession.mockReset();
+    beforeEach(() => {
+      mockDeleteSession.mockReset();
+    });
+
+    test('Logout with session cookie returns 204', async () => {
+      mockDeleteSession.mockResolvedValue(undefined);
+
+      const response = await request(app)
+        .post('/api/v1/auth/logout')
+        .set('Cookie', 'sid=test-session-id');
+
+      expect(response.status).toBe(204);
+
+      expect(mockDeleteSession).toHaveBeenCalledWith('test-session-id');
+
+      expect(response.headers['set-cookie']).toEqual(
+        expect.arrayContaining([expect.stringContaining('sid=;')]),
+      );
+    });
+
+    test('Logout without cookie returns 204', async () => {
+      const response = await request(app).post('/api/v1/auth/logout');
+
+      expect(response.status).toBe(204);
+
+      expect(mockDeleteSession).not.toHaveBeenCalled();
+    });
+
+    test('Database error during logout returns 500', async () => {
+      mockDeleteSession.mockRejectedValue(new Error('Database unavailable'));
+
+      const response = await request(app)
+        .post('/api/v1/auth/logout')
+        .set('Cookie', 'sid=test-session-id');
+
+      expect(response.status).toBe(500);
+      expect(response.body.code).toBe('INTERNAL_ERROR');
+    });
   });
-
-  test('Logout with session cookie returns 204', async () => {
-    mockDeleteSession.mockResolvedValue(undefined);
-
-    const response = await request(app)
-      .post('/api/v1/auth/logout')
-      .set('Cookie', 'sid=test-session-id');
-
-    expect(response.status).toBe(204);
-
-    expect(mockDeleteSession).toHaveBeenCalledWith(
-      'test-session-id',
-    );
-
-    expect(response.headers['set-cookie']).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('sid=;'),
-      ]),
-    );
-  });
-
-  test('Logout without cookie returns 204', async () => {
-    const response = await request(app)
-      .post('/api/v1/auth/logout');
-
-    expect(response.status).toBe(204);
-
-    expect(mockDeleteSession).not.toHaveBeenCalled();
-  });
-
-  test('Database error during logout returns 500', async () => {
-    mockDeleteSession.mockRejectedValue(
-      new Error('Database unavailable'),
-    );
-
-    const response = await request(app)
-      .post('/api/v1/auth/logout')
-      .set('Cookie', 'sid=test-session-id');
-
-    expect(response.status).toBe(500);
-    expect(response.body.code).toBe('INTERNAL_ERROR');
-  });
-});
 
   describe('GET /api/v1/auth/me', () => {
     test('Without session returns 401', async () => {
-      const response = await request(app)
-        .get('/api/v1/auth/me');
+      const response = await request(app).get('/api/v1/auth/me');
 
       expect(response.status).toBe(401);
       expect(response.body.code).toBe('UNAUTHENTICATED');
@@ -188,9 +162,7 @@ describe('Auth Routes - POST /api/v1/auth/login', () => {
         student_code: '52400001',
       });
 
-      const response = await request(app)
-        .get('/api/v1/auth/me')
-        .set('Cookie', 'sid=valid-session');
+      const response = await request(app).get('/api/v1/auth/me').set('Cookie', 'sid=valid-session');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
@@ -202,9 +174,7 @@ describe('Auth Routes - POST /api/v1/auth/login', () => {
       });
 
       expect(response.body).not.toHaveProperty('password_hash');
-      expect(mockFindSession).toHaveBeenCalledWith(
-        'valid-session',
-      );
+      expect(mockFindSession).toHaveBeenCalledWith('valid-session');
       expect(mockFindUser).toHaveBeenCalledWith('1');
     });
 
@@ -220,5 +190,4 @@ describe('Auth Routes - POST /api/v1/auth/login', () => {
       expect(mockFindUser).not.toHaveBeenCalled();
     });
   });
-
 });
