@@ -1,0 +1,2 @@
+# File shell phải giữ ký tự xuống dòng kiểu Linux, kể cả khi clone trên Windows.
+*.sh text eol=lf
