@@ -21,7 +21,7 @@ interface CourseRow {
   description: string | null;
 }
 
-interface SectionRow {
+export interface SectionRow {
   id: string;
   course_id: string;
   semester_id: string;
@@ -34,6 +34,20 @@ interface SectionRow {
 }
 
 const COURSE_COLUMNS = 'c.id, c.code, c.name, c.credits, c.description';
+
+// Các cột của một lớp học phần (bảng sections, bí danh s), kèm số người đang chờ và lịch học.
+// Dùng chung cho chi tiết môn và hàng chờ.
+export const SECTION_COLUMNS = `s.id, s.course_id, s.semester_id, s.code, s.lecturer_name,
+  s.capacity, s.enrolled_count,
+  (SELECT COUNT(*)::int FROM waitlist_entries w
+    WHERE w.section_id = s.id AND w.status = 'WAITING') AS waitlist_count,
+  COALESCE((
+    SELECT json_agg(json_build_object(
+      'dayOfWeek', sl.day_of_week, 'startPeriod', sl.start_period,
+      'endPeriod', sl.end_period, 'room', sl.room
+    ) ORDER BY sl.day_of_week, sl.start_period)
+    FROM section_slots sl WHERE sl.section_id = s.id
+  ), '[]'::json) AS slots`;
 
 // Học kỳ hiện tại: đang trong thời gian đăng ký; nếu không có thì học kỳ bắt đầu gần nhất.
 const CURRENT_SEMESTER_SQL = `
@@ -56,7 +70,7 @@ function toCourse(row: CourseRow): Course {
   };
 }
 
-function toSection(row: SectionRow): Section {
+export function toSection(row: SectionRow): Section {
   return {
     id: Number(row.id),
     courseId: Number(row.course_id),
@@ -113,17 +127,7 @@ export function createCourseRepository(db: Queryable): CourseReader {
 
       // Các lớp của học kỳ được chọn (mặc định học kỳ hiện tại), kèm lịch học và số người đang chờ.
       const sections = await db.query<SectionRow>(
-        `SELECT s.id, s.course_id, s.semester_id, s.code, s.lecturer_name,
-           s.capacity, s.enrolled_count,
-           (SELECT COUNT(*)::int FROM waitlist_entries w
-             WHERE w.section_id = s.id AND w.status = 'WAITING') AS waitlist_count,
-           COALESCE((
-             SELECT json_agg(json_build_object(
-               'dayOfWeek', sl.day_of_week, 'startPeriod', sl.start_period,
-               'endPeriod', sl.end_period, 'room', sl.room
-             ) ORDER BY sl.day_of_week, sl.start_period)
-             FROM section_slots sl WHERE sl.section_id = s.id
-           ), '[]'::json) AS slots
+        `SELECT ${SECTION_COLUMNS}
          FROM sections s
          WHERE s.course_id = $1
            AND s.semester_id = COALESCE($2::bigint, (${CURRENT_SEMESTER_SQL}))

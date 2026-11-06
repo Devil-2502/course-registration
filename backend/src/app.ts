@@ -9,6 +9,8 @@ import { createCoursesRouter } from './courses/courses.routes';
 import { pool } from './db/pool';
 import { createRegistrationRepository } from './registration/registration.repository';
 import { createRegistrationsRouter } from './registration/registrations.routes';
+import { createWaitlistRepository } from './waitlist/waitlist.repository';
+import { createWaitlistRouter } from './waitlist/waitlist.routes';
 
 // Các địa chỉ frontend được phép gọi API kèm cookie (Vite dev và bản Docker).
 const allowedOrigins = (
@@ -42,6 +44,14 @@ export function createApp() {
     createRegistrationsRouter(createRegistrationRepository(pool), (req) =>
       Number(req.user?.studentId),
     ),
+  );
+
+  // Hàng chờ (M2, US-09): phải đăng nhập và là sinh viên.
+  app.use(
+    '/api/v1/waitlist',
+    requireAuth,
+    requireRole('STUDENT'),
+    createWaitlistRouter(createWaitlistRepository(pool), (req) => Number(req.user?.studentId)),
   );
 
   app.use(notFoundHandler);
