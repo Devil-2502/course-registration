@@ -3,10 +3,12 @@ import cors from 'cors';
 import express from 'express';
 import { errorHandler, notFoundHandler } from './common/error-handler';
 import { authRouter } from './auth/auth.routes';
-import { requireAuth } from './auth/auth.middleware';
+import { requireAuth, requireRole } from './auth/auth.middleware';
 import { createCourseRepository } from './courses/courses.repository';
 import { createCoursesRouter } from './courses/courses.routes';
 import { pool } from './db/pool';
+import { createRegistrationRepository } from './registration/registration.repository';
+import { createRegistrationsRouter } from './registration/registrations.routes';
 
 // Các địa chỉ frontend được phép gọi API kèm cookie (Vite dev và bản Docker).
 const allowedOrigins = (
@@ -31,9 +33,16 @@ export function createApp() {
   // Danh mục và chi tiết môn (M2): phải đăng nhập.
   app.use('/api/v1/courses', requireAuth, createCoursesRouter(createCourseRepository(pool)));
 
-  // Bảo vệ API đăng ký học phần.
-  // Registration Router sẽ được gắn sau middleware này.
-  app.use('/api/v1/registrations', requireAuth);
+  // Đăng ký học phần (M2): phải đăng nhập và là sinh viên (bước 1, 2 trong api-endpoints-draft.md).
+  // studentId trong req.user là chuỗi (BIGINT của pg) nên đổi sang số.
+  app.use(
+    '/api/v1/registrations',
+    requireAuth,
+    requireRole('STUDENT'),
+    createRegistrationsRouter(createRegistrationRepository(pool), (req) =>
+      Number(req.user?.studentId),
+    ),
+  );
 
   app.use(notFoundHandler);
   app.use(errorHandler);
