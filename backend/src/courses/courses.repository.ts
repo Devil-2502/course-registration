@@ -50,7 +50,7 @@ export const SECTION_COLUMNS = `s.id, s.course_id, s.semester_id, s.code, s.lect
   ), '[]'::json) AS slots`;
 
 // Học kỳ hiện tại: đang trong thời gian đăng ký; nếu không có thì học kỳ bắt đầu gần nhất.
-const CURRENT_SEMESTER_SQL = `
+export const CURRENT_SEMESTER_SQL = `
   SELECT id FROM semesters
   ORDER BY (now() BETWEEN registration_start AND registration_end) DESC, registration_start DESC
   LIMIT 1`;
