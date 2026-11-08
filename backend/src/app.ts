@@ -4,6 +4,8 @@ import express from 'express';
 import { errorHandler, notFoundHandler } from './common/error-handler';
 import { authRouter } from './auth/auth.routes';
 import { requireAuth, requireRole } from './auth/auth.middleware';
+import { createCatalogRepository } from './admin/catalog.repository';
+import { createCourseAdminRouter, createSectionsRouter } from './admin/catalog.routes';
 import { createCourseRepository } from './courses/courses.repository';
 import { createCoursesRouter } from './courses/courses.routes';
 import { pool } from './db/pool';
@@ -36,7 +38,17 @@ export function createApp() {
   app.use('/api/v1/auth', authRouter);
 
   // Danh mục và chi tiết môn (M2): phải đăng nhập.
-  app.use('/api/v1/courses', requireAuth, createCoursesRouter(createCourseRepository(pool)));
+  // Thêm, sửa môn và môn tiên quyết (US-12, US-13): các route ghi chỉ cho ADMIN (kiểm tra trong router).
+  const catalog = createCatalogRepository(pool);
+  app.use(
+    '/api/v1/courses',
+    requireAuth,
+    createCoursesRouter(createCourseRepository(pool)),
+    createCourseAdminRouter(catalog),
+  );
+
+  // Lớp học phần (US-12): xem cho mọi người đã đăng nhập; tạo, sửa, danh sách lớp và hàng chờ cho ADMIN.
+  app.use('/api/v1/sections', requireAuth, createSectionsRouter(catalog));
 
   // Đăng ký học phần (M2): phải đăng nhập và là sinh viên (bước 1, 2 trong api-endpoints-draft.md).
   // studentId trong req.user là chuỗi (BIGINT của pg) nên đổi sang số.
