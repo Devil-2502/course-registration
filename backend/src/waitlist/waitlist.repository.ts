@@ -19,7 +19,7 @@ interface TargetRow {
 }
 
 // Một lượt chờ kèm lớp học phần; cột của lớp lấy theo SECTION_COLUMNS.
-interface EntryRow extends SectionRow {
+export interface EntryRow extends SectionRow {
   entry_id: string;
   student_id: string;
   status: WaitlistStatus;
@@ -29,7 +29,7 @@ interface EntryRow extends SectionRow {
 
 // Vị trí trong hàng (tính từ 1): số lượt WAITING cùng lớp vào trước hoặc cùng lúc mà id nhỏ hơn hay bằng.
 // Cùng thứ tự với orderWaitingEntries trong waitlist-queue.ts. Lượt không còn WAITING thì null.
-const ENTRY_SQL = `
+export const ENTRY_SQL = `
   SELECT w.id AS entry_id, w.student_id, w.status, w.created_at,
     CASE WHEN w.status = 'WAITING' THEN (
       SELECT COUNT(*)::int FROM waitlist_entries o
@@ -40,7 +40,7 @@ const ENTRY_SQL = `
   FROM waitlist_entries w
   JOIN sections s ON s.id = w.section_id`;
 
-function toEntry(row: EntryRow): WaitlistEntryResponse {
+export function toEntry(row: EntryRow): WaitlistEntryResponse {
   const section = toSection(row);
   return {
     id: Number(row.entry_id),

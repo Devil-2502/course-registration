@@ -17,7 +17,7 @@ import type { EnrolmentStore, RegistrationResponse } from './registrations.route
 export type Database = Pick<Pool, 'query' | 'connect'>;
 
 // Một lần đăng ký kèm lớp và môn; cột của lớp lấy theo SECTION_COLUMNS.
-interface RegistrationRow extends SectionRow {
+export interface RegistrationRow extends SectionRow {
   registration_id: string;
   student_id: string;
   status: 'ENROLLED' | 'DROPPED';
@@ -28,7 +28,7 @@ interface RegistrationRow extends SectionRow {
   course_description: string | null;
 }
 
-const REGISTRATION_SQL = `
+export const REGISTRATION_SQL = `
   SELECT e.id AS registration_id, e.student_id, e.status, e.created_at,
     c.code AS course_code, c.name AS course_name, c.credits AS course_credits,
     c.description AS course_description,
@@ -37,7 +37,7 @@ const REGISTRATION_SQL = `
   JOIN sections s ON s.id = e.section_id
   JOIN courses c ON c.id = s.course_id`;
 
-function toRegistration(row: RegistrationRow): RegistrationResponse {
+export function toRegistration(row: RegistrationRow): RegistrationResponse {
   const section = toSection(row);
   return {
     id: Number(row.registration_id),
