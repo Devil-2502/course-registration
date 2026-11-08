@@ -10,6 +10,8 @@ import { pool } from './db/pool';
 import { createEnrolmentRepository } from './registration/enrolment.repository';
 import { createRegistrationRepository } from './registration/registration.repository';
 import { createRegistrationsRouter } from './registration/registrations.routes';
+import { createSemesterRepository, createSemestersRouter } from './semesters/semesters';
+import { createStudentRepository, createStudentsMeRouter } from './students/students';
 import { createWaitlistRepository } from './waitlist/waitlist.repository';
 import { createWaitlistRouter } from './waitlist/waitlist.routes';
 
@@ -54,6 +56,17 @@ export function createApp() {
     requireAuth,
     requireRole('STUDENT'),
     createWaitlistRouter(createWaitlistRepository(pool), (req) => Number(req.user?.studentId)),
+  );
+
+  // Học kỳ: sinh viên và quản trị viên đều cần.
+  app.use('/api/v1/semesters', requireAuth, createSemestersRouter(createSemesterRepository(pool)));
+
+  // Thời khóa biểu và kết quả học của sinh viên đang đăng nhập.
+  app.use(
+    '/api/v1/students/me',
+    requireAuth,
+    requireRole('STUDENT'),
+    createStudentsMeRouter(createStudentRepository(pool), (req) => Number(req.user?.studentId)),
   );
 
   app.use(notFoundHandler);
