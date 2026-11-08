@@ -3,6 +3,7 @@ import type { Violation } from './api'
 
 // Câu tiếng Việt cho các mã lỗi nghiệp vụ hay gặp; mã khác giữ nguyên message của máy chủ.
 const messages: Record<string, string> = {
+  INVALID_CREDENTIALS: 'Email hoặc mật khẩu không đúng.',
   ALREADY_ON_WAITLIST: 'Bạn đã ở trong hàng chờ của lớp này.',
   SECTION_NOT_FULL: 'Lớp vẫn còn chỗ, hãy đăng ký trực tiếp.',
   ALREADY_ENROLLED: 'Bạn đã đăng ký một lớp của môn này.',
