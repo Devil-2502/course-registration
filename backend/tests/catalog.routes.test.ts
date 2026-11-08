@@ -65,6 +65,58 @@ const as = (role: string) => ({ 'X-Test-Role': role });
 beforeEach(() => jest.clearAllMocks());
 
 describe('Quyền', () => {
+  it('Chưa đăng nhập không được tạo hoặc cập nhật lớp học phần: 401 UNAUTHENTICATED', async () => {
+    const created = await request(app).post('/sections').send(sectionBody);
+
+    expect(created.status).toBe(401);
+    expect(created.body.code).toBe('UNAUTHENTICATED');
+    expect(store.createSection).not.toHaveBeenCalled();
+
+    const updated = await request(app).put('/sections/21').send(sectionBody);
+
+    expect(updated.status).toBe(401);
+    expect(updated.body.code).toBe('UNAUTHENTICATED');
+    expect(store.updateSection).not.toHaveBeenCalled();
+  });
+
+  it('Chưa đăng nhập không được tạo môn học: 401 UNAUTHENTICATED', async () => {
+    const response = await request(app).post('/courses').send({
+      code: 'CS999',
+      name: 'Test Course',
+      credits: 3,
+    });
+
+    expect(response.status).toBe(401);
+    expect(response.body.code).toBe('UNAUTHENTICATED');
+    expect(store.createCourse).not.toHaveBeenCalled();
+  });
+
+  it('Sinh viên không được cập nhật môn học: 403 FORBIDDEN', async () => {
+    const response = await request(app).put('/courses/9').set(as('STUDENT')).send({
+      code: 'CS401',
+      name: 'Updated Course',
+      credits: 3,
+    });
+
+    expect(response.status).toBe(403);
+    expect(response.body.code).toBe('FORBIDDEN');
+    expect(store.updateCourse).not.toHaveBeenCalled();
+  });
+
+  it('Sinh viên không được tạo hoặc cập nhật lớp học phần: 403 FORBIDDEN', async () => {
+    const created = await request(app).post('/sections').set(as('STUDENT')).send(sectionBody);
+
+    expect(created.status).toBe(403);
+    expect(created.body.code).toBe('FORBIDDEN');
+    expect(store.createSection).not.toHaveBeenCalled();
+
+    const updated = await request(app).put('/sections/21').set(as('STUDENT')).send(sectionBody);
+
+    expect(updated.status).toBe(403);
+    expect(updated.body.code).toBe('FORBIDDEN');
+    expect(store.updateSection).not.toHaveBeenCalled();
+  });
+
   it('Sinh viên gọi API ghi của admin: 403 FORBIDDEN, không gọi kho', async () => {
     const response = await request(app)
       .post('/courses')
