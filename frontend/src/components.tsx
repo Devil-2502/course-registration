@@ -24,6 +24,10 @@ export function ErrorNotice({ error, retry }: { error: unknown; retry?: () => vo
   let message = error instanceof Error ? error.message : 'Không thể kết nối đến máy chủ.'
   if (error instanceof ApiError && messages[error.code]) message = messages[error.code]
   if (error instanceof ApiError && error.code === 'VALIDATION_ERROR' && fieldErrors(error)) message = `Dữ liệu chưa hợp lệ (${fieldErrors(error)}).`
+  const path = error instanceof ApiError ? error.details?.path : undefined
+  if (error instanceof ApiError && error.code === 'PREREQUISITE_CYCLE' && Array.isArray(path) && path.length > 0 && path.every(item => typeof item === 'string')) {
+    message = `${messages.PREREQUISITE_CYCLE} Vòng lặp: ${path.join(' → ')}.`
+  }
   if (error instanceof ApiError && error.status === 403 && error.code === 'FORBIDDEN') message = 'Bạn không có quyền truy cập chức năng này.'
   if (error instanceof ApiError && error.status === 404) message = 'Không tìm thấy dữ liệu được yêu cầu.'
   return <div className="notice error" role="alert"><p>{message}</p>{retry && <button onClick={retry}>Thử lại</button>}</div>
