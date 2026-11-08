@@ -7,6 +7,7 @@ import { requireAuth, requireRole } from './auth/auth.middleware';
 import { createCourseRepository } from './courses/courses.repository';
 import { createCoursesRouter } from './courses/courses.routes';
 import { pool } from './db/pool';
+import { createEnrolmentRepository } from './registration/enrolment.repository';
 import { createRegistrationRepository } from './registration/registration.repository';
 import { createRegistrationsRouter } from './registration/registrations.routes';
 import { createWaitlistRepository } from './waitlist/waitlist.repository';
@@ -41,8 +42,9 @@ export function createApp() {
     '/api/v1/registrations',
     requireAuth,
     requireRole('STUDENT'),
-    createRegistrationsRouter(createRegistrationRepository(pool), (req) =>
-      Number(req.user?.studentId),
+    createRegistrationsRouter(
+      { ...createRegistrationRepository(pool), ...createEnrolmentRepository(pool) },
+      (req) => Number(req.user?.studentId),
     ),
   );
 
