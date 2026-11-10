@@ -2,8 +2,7 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 import { loginAsStudent } from './helpers/auth';
 import { courseId, query, resetDatabase } from './helpers/db';
 
-// US-02, US-03: cần GET /courses và GET /courses/{id} của M2.
-// Khi M2 merge, đổi test.fixme thành test và chạy lại.
+// US-02, US-03: GET /courses và GET /courses/{id}.
 let student: APIRequestContext;
 
 test.beforeAll(async () => {
@@ -14,7 +13,7 @@ test.afterAll(async () => {
   await student.dispose();
 });
 
-test.fixme('Search by keyword: "data" tìm ra CS201', async () => {
+test('Search by keyword: "data" tìm ra CS201', async () => {
   const response = await student.get('/api/v1/courses?q=data');
   expect(response.status()).toBe(200);
   const body = await response.json();
@@ -22,14 +21,14 @@ test.fixme('Search by keyword: "data" tìm ra CS201', async () => {
   expect(cs201).toMatchObject({ name: 'Data Structures and Algorithms', credits: 4 });
 });
 
-test.fixme('Search with no matching course: danh sách rỗng', async () => {
+test('Search with no matching course: danh sách rỗng', async () => {
   const response = await student.get('/api/v1/courses?q=zzzz');
   expect(response.status()).toBe(200);
   expect((await response.json()).items).toEqual([]);
 });
 
 // Gherkin dùng 45 môn; dữ liệu mẫu có 20 môn nên kiểm tra theo tổng thật trong CSDL.
-test.fixme('Paginated catalog: trang 2, mỗi trang 10 môn', async () => {
+test('Paginated catalog: trang 2, mỗi trang 10 môn', async () => {
   const [{ total }] = await query<{ total: string }>('SELECT count(*) AS total FROM courses');
   const body = await (await student.get('/api/v1/courses?page=2&pageSize=10')).json();
   expect(body.page).toBe(2);
@@ -38,7 +37,7 @@ test.fixme('Paginated catalog: trang 2, mỗi trang 10 môn', async () => {
   expect(body.items).toHaveLength(Math.min(10, Number(total) - 10));
 });
 
-test.fixme('View course details: CS201 có tiên quyết CS101 và các lớp kèm lịch, số chỗ', async () => {
+test('View course details: CS201 có tiên quyết CS101 và các lớp kèm lịch, số chỗ', async () => {
   const response = await student.get(`/api/v1/courses/${await courseId('CS201')}`);
   expect(response.status()).toBe(200);
   const detail = await response.json();
@@ -51,11 +50,11 @@ test.fixme('View course details: CS201 có tiên quyết CS101 và các lớp k�
   }
 });
 
-test.fixme('Prerequisite status for the signed-in student: std_402 đã đạt CS101', async () => {
+test('Prerequisite status for the signed-in student: std_402 đã đạt CS101', async () => {
   const detail = await (await student.get(`/api/v1/courses/${await courseId('CS201')}`)).json();
   expect(detail.prerequisites[0]).toMatchObject({ code: 'CS101', passed: true });
 });
 
-test.fixme('Course does not exist: 404', async () => {
+test('Course does not exist: 404', async () => {
   expect((await student.get('/api/v1/courses/999999')).status()).toBe(404);
 });

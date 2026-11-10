@@ -30,7 +30,7 @@ async function statusOf(studentCode: string, sectionCode: string) {
   return row;
 }
 
-test.fixme('Drop a section: 204, đăng ký chuyển sang DROPPED', async () => {
+test('Drop a section: 204, đăng ký chuyển sang DROPPED', async () => {
   const student = await loginAsStudent('std_402');
   const id = await registrationIdOf('std_402', 'MA101-01');
   expect((await student.delete(`/api/v1/registrations/${id}`)).status()).toBe(204);
@@ -39,7 +39,7 @@ test.fixme('Drop a section: 204, đăng ký chuyển sang DROPPED', async () => 
   await student.dispose();
 });
 
-test.fixme('First student on the waitlist is promoted: std_610 vào lớp, lớp vẫn đầy', async () => {
+test('First student on the waitlist is promoted: std_610 vào lớp, lớp vẫn đầy', async () => {
   const leaving = await loginAsStudent('std_140');
   const response = await leaving.delete(`/api/v1/registrations/${await registrationIdOf('std_140', 'EN101-01')}`);
   expect(response.status()).toBe(204);
@@ -52,7 +52,7 @@ test.fixme('First student on the waitlist is promoted: std_610 vào lớp, lớp
   await leaving.dispose();
 });
 
-test.fixme('A waiting student who is no longer eligible is skipped: std_610 bị bỏ qua, std_611 vào lớp', async () => {
+test('A waiting student who is no longer eligible is skipped: std_610 bị bỏ qua, std_611 vào lớp', async () => {
   // CS101-02 học thứ Sáu tiết 1-3, trùng buổi thứ Sáu 1-2 của EN101-01
   await enroll('std_610', 'CS101-02');
   const leaving = await loginAsStudent('std_140');
@@ -62,7 +62,7 @@ test.fixme('A waiting student who is no longer eligible is skipped: std_610 bị
   await leaving.dispose();
 });
 
-test.fixme("Drop someone else's registration: 403", async () => {
+test("Drop someone else's registration: 403", async () => {
   const other = await registrationIdOf('std_101', 'CS210-01');
   const student = await loginAsStudent('std_402');
   expect((await student.delete(`/api/v1/registrations/${other}`)).status()).toBe(403);

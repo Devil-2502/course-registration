@@ -14,7 +14,7 @@ test.afterAll(async () => {
   await student.dispose();
 });
 
-test.fixme('Join the waitlist: 201, WAITING, vị trí thứ 4', async () => {
+test('Join the waitlist: 201, WAITING, vị trí thứ 4', async () => {
   await clearStudent('std_402');
   const response = await student.post('/api/v1/waitlist', { data: { sectionId: await sectionId('EN101-01') } });
   expect(response.status()).toBe(201);
@@ -23,19 +23,19 @@ test.fixme('Join the waitlist: 201, WAITING, vị trí thứ 4', async () => {
   expect(entry.position).toBe(4);
 });
 
-test.fixme('Join the same waitlist twice: 409 ALREADY_ON_WAITLIST', async () => {
+test('Join the same waitlist twice: 409 ALREADY_ON_WAITLIST', async () => {
   const response = await student.post('/api/v1/waitlist', { data: { sectionId: await sectionId('EN101-01') } });
   expect(response.status()).toBe(409);
   expect((await response.json()).code).toBe('ALREADY_ON_WAITLIST');
 });
 
-test.fixme('Section still has seats: 409 SECTION_NOT_FULL', async () => {
+test('Section still has seats: 409 SECTION_NOT_FULL', async () => {
   const response = await student.post('/api/v1/waitlist', { data: { sectionId: await sectionId('CS201-02') } });
   expect(response.status()).toBe(409);
   expect((await response.json()).code).toBe('SECTION_NOT_FULL');
 });
 
-test.fixme('Leave the waitlist: 204, người phía sau lên một bậc', async () => {
+test('Leave the waitlist: 204, người phía sau lên một bậc', async () => {
   await resetDatabase();
   const first = await loginAsStudent('std_610');
   const mine = await (await first.get('/api/v1/waitlist')).json();
