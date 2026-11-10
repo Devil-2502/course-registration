@@ -48,6 +48,15 @@ describe('US-13: Quản lý môn tiên quyết (UI-10)', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Thêm' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('tạo vòng lặp môn tiên quyết')
   })
+  it('máy chủ trả details.path thì hiện vòng lặp cụ thể', async () => {
+    mockApi((path, options) => options?.method === 'POST' ?
+      json({ code: 'PREREQUISITE_CYCLE', message: 'cycle', details: { path: ['CS101', 'CS301', 'CS201', 'CS101'] } }, 409) :
+      path.includes('/prerequisites') ? json([]) : json(catalog))
+    render(<AdminPrerequisites course={cs101} back={() => {}} />)
+    await userEvent.selectOptions(await screen.findByLabelText('Thêm môn tiên quyết'), '3')
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Vòng lặp: CS101 → CS301 → CS201 → CS101.')
+  })
   it('gỡ tiên quyết gửi DELETE', async () => {
     const fetch = mockApi((path, options) => options?.method === 'DELETE' ? new Response(null, { status: 204 }) :
       path.includes('/prerequisites') ? json([cs101]) : json(catalog))

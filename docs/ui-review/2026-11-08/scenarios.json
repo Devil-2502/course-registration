@@ -1,0 +1,102 @@
+{
+  "mode": "after",
+  "results": [
+    {
+      "id": 1,
+      "title": "Tìm data thấy CS201 và CS230",
+      "status": "passed",
+      "durationMs": 149
+    },
+    {
+      "id": 2,
+      "title": "Chi tiết CS201: CS101 đã đạt và có ba lớp",
+      "status": "passed",
+      "durationMs": 152
+    },
+    {
+      "id": 3,
+      "title": "CS201-01 trùng MA101-01 và bị khóa đăng ký",
+      "status": "passed",
+      "durationMs": 250
+    },
+    {
+      "id": 4,
+      "title": "Đăng ký CS201-02 tăng sĩ số và có 7/24 tín chỉ",
+      "status": "passed",
+      "durationMs": 197
+    },
+    {
+      "id": 5,
+      "title": "Lịch tuần có hai lớp thứ Hai liền kề",
+      "status": "passed",
+      "durationMs": 83
+    },
+    {
+      "id": 6,
+      "title": "Xác nhận hủy CS201-02 và tải lại danh sách",
+      "status": "passed",
+      "durationMs": 277
+    },
+    {
+      "id": 7,
+      "title": "Lớp EN101-01 đầy, vào hàng chờ vị trí 4",
+      "status": "passed",
+      "durationMs": 329
+    },
+    {
+      "id": 8,
+      "title": "Rời hàng chờ EN101-01",
+      "status": "passed",
+      "durationMs": 234
+    },
+    {
+      "id": 9,
+      "title": "Kết quả CS101: 2025-2, điểm 8, đã đạt",
+      "status": "passed",
+      "durationMs": 72
+    },
+    {
+      "id": 10,
+      "title": "std_500 không đủ tiên quyết CS101",
+      "status": "passed",
+      "durationMs": 585
+    },
+    {
+      "id": 11,
+      "title": "std_501 không đủ tiên quyết CS101",
+      "status": "passed",
+      "durationMs": 618
+    },
+    {
+      "id": 12,
+      "title": "std_140 hủy EN101-01 thì std_610 được đôn vào",
+      "status": "passed",
+      "durationMs": 863
+    },
+    {
+      "id": 13,
+      "title": "Admin tạo CS450 và báo lỗi mã CS201 đã có",
+      "status": "passed",
+      "durationMs": 623
+    },
+    {
+      "id": 14,
+      "title": "Admin tạo EN101-02 sức chứa 25 và một buổi học",
+      "status": "passed",
+      "durationMs": 296
+    },
+    {
+      "id": 15,
+      "title": "Sức chứa 10 bị từ chối; nâng 31 đôn người chờ, sĩ số 31/31",
+      "status": "passed",
+      "durationMs": 261
+    },
+    {
+      "id": 16,
+      "title": "Danh sách lớp có tên, mã SV, hàng chờ; chặn vòng lặp CS101",
+      "status": "passed",
+      "durationMs": 649
+    }
+  ],
+  "pageErrors": []
+}

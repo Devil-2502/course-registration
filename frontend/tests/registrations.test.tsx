@@ -12,6 +12,14 @@ const registration: Registration = {
 const entry: WaitlistEntry = { id: 9, studentId: 1, sectionId: 30, position: 2, status: 'WAITING', createdAt: '2026-10-18T00:00:00Z' }
 
 describe('US-10 và US-09: Môn đã đăng ký và hàng chờ', () => {
+  it('lượt CANCELLED nằm trong lịch sử, trạng thái đang chờ vẫn trống', async () => {
+    mockApi(path => path.endsWith('/registrations') ? json([]) : json([{ ...entry, status: 'CANCELLED', position: null }]))
+    render(<MyRegistrations catalog={() => {}} />)
+    expect(await screen.findByText('Bạn không ở trong hàng chờ nào.')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Lịch sử hàng chờ' })).toBeVisible()
+    expect(screen.getByText('Đã rời hàng chờ')).toBeVisible()
+    expect(screen.queryByRole('button', { name: /Rời hàng chờ/ })).not.toBeInTheDocument()
+  })
   it('không cho hủy lại môn đã hủy hoặc rời mục đã được xếp lớp', async () => {
     mockApi(path => path.endsWith('/registrations') ? json([{ ...registration, status: 'DROPPED' }]) : json([{ ...entry, status: 'PROMOTED', position: null }]))
     render(<MyRegistrations catalog={() => {}} />)
