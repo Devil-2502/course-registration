@@ -117,14 +117,14 @@ export function createRegistrationRepository(db: Queryable): RegistrationFactsRe
         slots: [],
       };
       const enrolled = sections.filter((s) => s.sectionId !== sectionId);
-     const clashIds = new Set(findClashes(targetSchedule, enrolled));
+      const clashIds = new Set(findClashes(targetSchedule, enrolled));
 
-const courseId = Number(t.course_id);
-// Kiểm tra giới hạn tín chỉ của học kỳ (US-07).
-const currentCredits = enrolled.reduce((sum, s) => sum + s.credits, 0);
-const requestedCredits = t.course_credits;
+      const courseId = Number(t.course_id);
+      // Kiểm tra giới hạn tín chỉ của học kỳ (US-07).
+      const currentCredits = enrolled.reduce((sum, s) => sum + s.credits, 0);
+      const requestedCredits = t.course_credits;
 
-const facts: RegistrationFacts = {
+      const facts: RegistrationFacts = {
         registrationOpen: t.registration_open,
         enrolledInSameCourse: enrolled.some((s) => s.courseId === courseId),
         alreadyPassed: history.some((a) => a.courseId === courseId && a.passed),
