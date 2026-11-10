@@ -1,4 +1,5 @@
 import type { Queryable } from '../courses/courses.repository';
+import { checkCreditLimit } from './credit-limit';
 import { findMissingPrerequisites, type CourseAttempt } from './prerequisite-check';
 import type { CourseRef, RegistrationFacts } from './registration-rules';
 import type { RegistrationFactsReader } from './registrations.routes';
@@ -119,7 +120,7 @@ export function createRegistrationRepository(db: Queryable): RegistrationFactsRe
       const clashIds = new Set(findClashes(targetSchedule, enrolled));
 
       const courseId = Number(t.course_id);
-      // Giới hạn tín chỉ (US-07). Đổi sang checkCreditLimit khi P3 của Phúc merge.
+      // Kiểm tra giới hạn tín chỉ của học kỳ (US-07).
       const currentCredits = enrolled.reduce((sum, s) => sum + s.credits, 0);
       const requestedCredits = t.course_credits;
 
@@ -131,12 +132,7 @@ export function createRegistrationRepository(db: Queryable): RegistrationFactsRe
         clashesWith: enrolled
           .filter((s) => clashIds.has(s.sectionId))
           .map((s) => ({ sectionId: s.sectionId, sectionCode: s.sectionCode })),
-        credit: {
-          allowed: currentCredits + requestedCredits <= t.max_credits,
-          currentCredits,
-          requestedCredits,
-          limit: t.max_credits,
-        },
+        credit: checkCreditLimit(currentCredits, requestedCredits, t.max_credits),
         remainingSeats: t.remaining_seats,
       };
       return facts;
