@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { post, request } from './api'
 import type { CourseDetail, Section, ValidationResult, WaitlistEntry, WeeklySchedule } from './api'
-import { ErrorNotice, Loading, ViolationNotice } from './components'
+import { ErrorNotice, Loading, ViolationNotice, ViolationSummary } from './components'
 import { days } from './days'
 import { useResource } from './useResource'
 import { Timetable } from './Schedule'
@@ -58,7 +58,7 @@ function SectionPreview({ course, section, onRegistered }: {
       {busy ? 'Đang đăng ký…' : success ? 'Đã đăng ký' : 'Xác nhận đăng ký'}
     </button>
     {full && !waiting && <button onClick={joinWaitlist} disabled={busy}>{busy ? 'Đang gửi…' : `Vào hàng chờ ${section.code}`}</button>}
-    {validation && !validation.valid && <p>Chưa thể đăng ký: {validation.violations.map(item => item.message).join('; ')}</p>}
+    {validation && !validation.valid && <ViolationSummary violations={validation.violations} />}
   </section>
 }
 
