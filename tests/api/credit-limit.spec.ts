@@ -18,7 +18,7 @@ test.beforeEach(async () => {
   await clearStudent('std_402');
 });
 
-test.fixme('Exceeding the credit limit: đang có 22, thêm 4 thì 422 CREDIT_LIMIT_EXCEEDED', async () => {
+test('Exceeding the credit limit: đang có 22, thêm 4 thì 422 CREDIT_LIMIT_EXCEEDED', async () => {
   // 4 + 4 + 4 + 4 + 3 + 3 = 22 tín chỉ
   await enroll('std_402', 'CS201-02', 'CS101-01', 'CS202-01', 'CS230-01', 'MA101-01', 'MA201-01');
   const response = await student.post('/api/v1/registrations', { data: { sectionId: await sectionId('CS301-01') } });
@@ -28,7 +28,7 @@ test.fixme('Exceeding the credit limit: đang có 22, thêm 4 thì 422 CREDIT_LI
   expect(body.details).toMatchObject({ currentCredits: 22, limit: 24 });
 });
 
-test.fixme('Reaching exactly the credit limit: đang có 20, thêm 4 thì 201', async () => {
+test('Reaching exactly the credit limit: đang có 20, thêm 4 thì 201', async () => {
   // 4 x 5 = 20 tín chỉ
   await enroll('std_402', 'CS201-02', 'CS101-01', 'CS202-01', 'CS230-01', 'CS310-01');
   const response = await student.post('/api/v1/registrations', { data: { sectionId: await sectionId('CS301-01') } });

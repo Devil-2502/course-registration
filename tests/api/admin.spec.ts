@@ -47,8 +47,8 @@ test('Create a section with a schedule: 201', async () => {
   expect(section.slots).toEqual([{ dayOfWeek: 1, startPeriod: 1, endPeriod: 3, room: 'B204' }]);
 });
 
-// Vế sau của kịch bản: cần GET /courses/{id} của M2.
-test.fixme('Create a section with a schedule: lớp mới hiện trong chi tiết môn CS201', async () => {
+// “kiểm tra lại qua GET /courses/{id}”
+test('Create a section with a schedule: lớp mới hiện trong chi tiết môn CS201', async () => {
   await admin.post('/api/v1/sections', {
     data: {
       courseId: await courseId('CS201'), semesterId: await semesterId('2026-1'),
@@ -93,9 +93,9 @@ test('Danh sách lớp và hàng chờ của EN101-01 (admin)', async () => {
   expect(waitlist.map((w: { position: number }) => w.position)).toEqual([1, 2, 3]);
 });
 
-// ---------- US-13: các API tiên quyết của M2, bỏ fixme khi đã merge ----------
+// ---------- US-13: các API tiên quyết  ----------
 
-test.fixme('Add a prerequisite: 201', async () => {
+test('Add a prerequisite: 201', async () => {
   // Seed đã có CS301 cần CS201, gỡ trước để thêm lại
   await query('DELETE FROM prerequisites WHERE course_id = $1 AND prerequisite_id = $2', [
     await courseId('CS301'),
@@ -109,7 +109,7 @@ test.fixme('Add a prerequisite: 201', async () => {
   expect(list.map((c: { code: string }) => c.code)).toContain('CS201');
 });
 
-test.fixme('Reject a relationship that creates a cycle: 409 PREREQUISITE_CYCLE', async () => {
+test('Reject a relationship that creates a cycle: 409 PREREQUISITE_CYCLE', async () => {
   const response = await admin.post(`/api/v1/courses/${await courseId('CS101')}/prerequisites`, {
     data: { prerequisiteId: await courseId('CS301') },
   });
@@ -117,14 +117,14 @@ test.fixme('Reject a relationship that creates a cycle: 409 PREREQUISITE_CYCLE',
   expect((await response.json()).code).toBe('PREREQUISITE_CYCLE');
 });
 
-test.fixme('A course cannot require itself: 409 PREREQUISITE_CYCLE', async () => {
+test('A course cannot require itself: 409 PREREQUISITE_CYCLE', async () => {
   const id = await courseId('CS201');
   const response = await admin.post(`/api/v1/courses/${id}/prerequisites`, { data: { prerequisiteId: id } });
   expect(response.status()).toBe(409);
   expect((await response.json()).code).toBe('PREREQUISITE_CYCLE');
 });
 
-test.fixme('Remove a prerequisite: 204', async () => {
+test('Remove a prerequisite: 204', async () => {
   const response = await admin.delete(
     `/api/v1/courses/${await courseId('CS301')}/prerequisites/${await courseId('CS201')}`,
   );

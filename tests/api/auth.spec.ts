@@ -67,8 +67,8 @@ test('Access a protected endpoint without a session: GET /auth/me trả 401', as
   await anonymous.dispose();
 });
 
-// Đúng nguyên văn Gherkin: cần GET /registrations của M2. Bỏ fixme khi API đó đã merge.
-test.fixme('Access a protected endpoint without a session: GET /registrations trả 401', async () => {
+// Đúng nguyên văn Gherkin: đăng nhập xong gọi được GET /registrations.
+test('Access a protected endpoint without a session: GET /registrations trả 401', async () => {
   const anonymous = await request.newContext({ baseURL: API_URL });
   expect((await anonymous.get('/api/v1/registrations')).status()).toBe(401);
   await anonymous.dispose();

@@ -17,7 +17,7 @@ test.beforeEach(async () => {
   await setRegistrationOpen(true);
 });
 
-test.fixme('Successful registration: 201, ENROLLED, lớp còn 4 chỗ', async () => {
+test('Successful registration: 201, ENROLLED, lớp còn 4 chỗ', async () => {
   await fillSection('CS201-01', 35); // còn 5 chỗ
   const response = await student.post('/api/v1/registrations', { data: { sectionId: await sectionId('CS201-01') } });
   expect(response.status()).toBe(201);
@@ -26,22 +26,22 @@ test.fixme('Successful registration: 201, ENROLLED, lớp còn 4 chỗ', async (
   expect(registration.section.remainingSeats).toBe(4);
 });
 
-test.fixme('Already enrolled in another section of the same course: 409 ALREADY_ENROLLED', async () => {
+test('Already enrolled in another section of the same course: 409 ALREADY_ENROLLED', async () => {
   await enroll('std_402', 'CS201-01');
   const response = await student.post('/api/v1/registrations', { data: { sectionId: await sectionId('CS201-02') } });
   expect(response.status()).toBe(409);
   expect((await response.json()).code).toBe('ALREADY_ENROLLED');
 });
 
-// Gherkin ghi 403, openapi-spec.yaml đang ghi 400: nhóm cần thống nhất một mã.
-test.fixme('Registration period is closed: 403 REGISTRATION_CLOSED', async () => {
+// Backend trả 403 REGISTRATION_CLOSED, đúng như Gherkin.
+test('Registration period is closed: 403 REGISTRATION_CLOSED', async () => {
   await setRegistrationOpen(false);
   const response = await student.post('/api/v1/registrations', { data: { sectionId: await sectionId('CS201-01') } });
   expect(response.status()).toBe(403);
   expect((await response.json()).code).toBe('REGISTRATION_CLOSED');
 });
 
-test.fixme('Sau khi đăng ký, enrolled_count khớp số dòng ENROLLED', async () => {
+test('Sau khi đăng ký, enrolled_count khớp số dòng ENROLLED', async () => {
   await student.post('/api/v1/registrations', { data: { sectionId: await sectionId('CS201-02') } });
   const [row] = await query<{ enrolled_count: number; actual: string }>(
     `SELECT s.enrolled_count,

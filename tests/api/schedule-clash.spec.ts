@@ -18,7 +18,7 @@ test.beforeEach(async () => {
   await enroll('std_402', 'MA101-01');
 });
 
-test.fixme('Overlapping time slots: 409 SCHEDULE_CLASH, nêu tên MA101-01', async () => {
+test('Overlapping time slots: 409 SCHEDULE_CLASH, nêu tên MA101-01', async () => {
   const response = await student.post('/api/v1/registrations', { data: { sectionId: await sectionId('CS201-01') } });
   expect(response.status()).toBe(409);
   const body = await response.json();
@@ -26,12 +26,12 @@ test.fixme('Overlapping time slots: 409 SCHEDULE_CLASH, nêu tên MA101-01', asy
   expect(JSON.stringify(body.details.conflictsWith)).toContain('MA101-01');
 });
 
-test.fixme('Adjacent time slots do not clash: CS201-02 đăng ký được', async () => {
+test('Adjacent time slots do not clash: CS201-02 đăng ký được', async () => {
   const response = await student.post('/api/v1/registrations', { data: { sectionId: await sectionId('CS201-02') } });
   expect(response.status()).toBe(201);
 });
 
-test.fixme('Same periods on different days do not clash: CS201-03 đăng ký được', async () => {
+test('Same periods on different days do not clash: CS201-03 đăng ký được', async () => {
   const response = await student.post('/api/v1/registrations', { data: { sectionId: await sectionId('CS201-03') } });
   expect(response.status()).toBe(201);
 });
