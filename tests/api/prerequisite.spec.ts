@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { loginAsStudent } from './helpers/auth';
 import { clearStudent, passCourse, resetDatabase, sectionId } from './helpers/db';
 
-// US-05: cần POST /registrations của M2.
+// US-05: POST /registrations.
 test.beforeAll(async () => {
   await resetDatabase();
 });

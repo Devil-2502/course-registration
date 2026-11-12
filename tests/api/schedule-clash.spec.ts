@@ -2,7 +2,7 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 import { loginAsStudent } from './helpers/auth';
 import { clearStudent, enroll, resetDatabase, sectionId } from './helpers/db';
 
-// US-06: cần POST /registrations của M2.
+// US-06: POST /registrations.
 // Lịch trong dữ liệu mẫu: MA101-01 thứ Hai 1-3, CS201-01 thứ Hai 2-4, CS201-02 thứ Hai 4-6, CS201-03 thứ Ba 1-3.
 let student: APIRequestContext;
 
