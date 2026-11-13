@@ -2,7 +2,7 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 import { loginAsAdmin, loginAsStudent } from './helpers/auth';
 import { clearStudent, resetDatabase, sectionId } from './helpers/db';
 
-// US-09: cần POST/DELETE /waitlist của M2.
+// US-09: POST/DELETE /waitlist.
 // Dữ liệu mẫu: EN101-01 đầy 30/30, hàng chờ std_610 (1), std_611 (2), std_170 (3). CS201-02 còn chỗ.
 let student: APIRequestContext;
 

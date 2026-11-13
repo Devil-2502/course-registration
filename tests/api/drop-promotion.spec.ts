@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { loginAsStudent } from './helpers/auth';
 import { enroll, query, resetDatabase, sectionId } from './helpers/db';
 
-// US-10: cần DELETE /registrations/{id} của M2.
+// US-10: DELETE /registrations/{id}.
 // Dữ liệu mẫu: EN101-01 đầy (std_140..std_169), hàng chờ std_610 (1), std_611 (2).
 test.beforeEach(async () => {
   await resetDatabase();

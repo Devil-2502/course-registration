@@ -2,7 +2,7 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 import { loginAsStudent } from './helpers/auth';
 import { clearStudent, enroll, passCourse, resetDatabase, sectionId } from './helpers/db';
 
-// US-07: cần POST /registrations của M2 (dùng hàm checkCreditLimit của M3).
+// US-07: POST /registrations (giới hạn tín chỉ dùng checkCreditLimit).
 // Lớp đích CS301-01 (4 tín chỉ, thứ Năm 1-3); các lớp dựng sẵn không trùng lịch với nó.
 let student: APIRequestContext;
 

@@ -2,7 +2,7 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 import { loginAsStudent } from './helpers/auth';
 import { clearStudent, enroll, fillSection, query, resetDatabase, sectionId, setRegistrationOpen } from './helpers/db';
 
-// US-04: cần POST /registrations của M2.
+// US-04: POST /registrations.
 let student: APIRequestContext;
 
 test.beforeAll(async () => {
