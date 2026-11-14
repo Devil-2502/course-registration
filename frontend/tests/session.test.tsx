@@ -7,6 +7,16 @@ import { json, mockApi, schedule } from './fixtures'
 
 const user = { id: 1, email: 'student@example.edu', fullName: 'Nguyễn Thiên Trí', role: 'STUDENT' }
 describe('Phiên đăng nhập và API', () => {
+  it('sai mật khẩu thì hiện câu tiếng Việt và giữ biểu mẫu đăng nhập', async () => {
+    mockApi(path => path.endsWith('/auth/me') ? json({ code: 'UNAUTHENTICATED', message: 'Sign in' }, 401) :
+      json({ code: 'INVALID_CREDENTIALS', message: 'Invalid email or password.' }, 401))
+    render(<App />)
+    await userEvent.type(await screen.findByLabelText('Email trường'), 'std_402@student.edu.vn')
+    await userEvent.type(screen.getByLabelText('Mật khẩu'), 'WrongPassword')
+    await userEvent.click(screen.getByRole('button', { name: 'Đăng nhập', exact: true }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Email hoặc mật khẩu không đúng.')
+    expect(screen.getByRole('button', { name: 'Đăng nhập', exact: true })).toBeEnabled()
+  })
   it('đăng nhập bằng cookie, điều hướng và đăng xuất', async () => {
     const fetch = mockApi(path => {
       if (path.endsWith('/auth/me')) return json({ code: 'UNAUTHENTICATED', message: 'Sign in' }, 401)

@@ -21,13 +21,34 @@ describe('US-03 và xem trước đăng ký', () => {
   })
   it('tô đỏ tiết trùng, hiển thị lớp xung đột và khóa nút theo API', async () => {
     mockApi(path => path.includes('/courses/') ? json(course) : path.includes('/schedule') ? json(schedule) : json({
-      valid: false, violations: [{ code: 'SCHEDULE_CLASH', message: 'Schedule clash with MA101-01', details: { conflictsWith: ['MA101-01'] } }],
+      valid: false, violations: [{ code: 'SCHEDULE_CLASH', message: 'Schedule clash with MA101-01', details: { conflictsWith: [{ sectionId: 12, sectionCode: 'MA101-01' }] } }],
     }))
     const view = render(<CourseDetails id={2} back={() => {}} />)
     await userEvent.click(await screen.findByRole('button', { name: 'Xem trước CS201-01' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('Schedule clash with MA101-01')
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent('Trùng lịch với lớp bạn đã đăng ký.')
+    expect(alert).toHaveTextContent('Lớp bị trùng lịch: MA101-01')
+    expect(alert).not.toHaveTextContent('Schedule clash')
+    expect(alert).not.toHaveTextContent('12')
     expect(screen.getByRole('button', { name: 'Xác nhận đăng ký' })).toBeDisabled()
     expect(view.container.querySelectorAll('td.clash')).toHaveLength(2)
+  })
+  it('vi phạm hiện bằng tiếng Việt, môn thiếu hiện mã và tên, không lộ id', async () => {
+    mockApi(path => path.includes('/courses/') ? json(course) : path.includes('/schedule') ? json(schedule) : json({
+      valid: false, violations: [
+        { code: 'PREREQUISITE_NOT_MET', message: 'Missing prerequisites: CS101.', details: { missingCourses: [{ id: 1, code: 'CS101', name: 'Introduction to Programming' }] } },
+        { code: 'SECTION_FULL', message: 'This section is full.' },
+      ],
+    }))
+    render(<CourseDetails id={2} back={() => {}} />)
+    await userEvent.click(await screen.findByRole('button', { name: 'Xem trước CS201-01' }))
+    const [missing, full] = await screen.findAllByRole('alert')
+    expect(missing).toHaveTextContent('Bạn chưa đạt môn tiên quyết.')
+    expect(missing).toHaveTextContent('Môn tiên quyết còn thiếu: CS101 – Introduction to Programming')
+    expect(missing).not.toHaveTextContent('1 ·')
+    expect(full).toHaveTextContent('Lớp đã đủ sĩ số.')
+    expect(screen.getByText(/Chưa thể đăng ký: Bạn chưa đạt môn tiên quyết\. Lớp đã đủ sĩ số\./)).toBeVisible()
+    expect(screen.queryByText(/Missing prerequisites|This section is full/)).toBeNull()
   })
   it('không cho đăng ký khi kiểm tra thất bại hoặc còn đang chờ', async () => {
     mockApi(path => path.includes('/courses/') ? json(course) : path.includes('/schedule') ? json(schedule) : json({ code: 'FORBIDDEN', message: 'Forbidden' }, 403))

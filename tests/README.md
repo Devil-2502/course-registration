@@ -94,3 +94,5 @@ Stress test chạy thủ công trước mỗi mốc nộp, không chạy ở m�
 2. Cách đặt lại dữ liệu giữa các lần chạy test: nạp lại toàn bộ, hay mỗi test tự tạo dữ liệu riêng.
 3. Test có cần chạy được khi đợt đăng ký đã đóng không (cần cách chỉnh thời gian của học kỳ trong dữ liệu test).
 4. Ngưỡng độ phủ đặt trong cấu hình Jest để CI tự chặn, hay kiểm tra bằng mắt.
+
+

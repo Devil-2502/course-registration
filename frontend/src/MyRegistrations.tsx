@@ -37,6 +37,18 @@ export default function MyRegistrations({ catalog }: { catalog: () => void }) {
   }
 
   const registrations = data?.registrations.filter(item => item.status === 'ENROLLED') ?? []
+  const waiting = data?.waitlist.filter(entry => entry.status === 'WAITING') ?? []
+  const history = data?.waitlist.filter(entry => entry.status !== 'WAITING') ?? []
+
+  function waitlistCard(entry: WaitlistEntry) {
+    const code = entry.section?.code ?? `Lớp #${entry.sectionId}`
+    return <li className="card actions" key={entry.id}>
+      <span><strong>{code}</strong> · Vị trí {entry.position ?? '—'} · <span className="badge">{waitlistLabels[entry.status]}</span></span>
+      {entry.status === 'WAITING' && <button disabled={busy} onClick={() => run(() => remove(`/waitlist/${entry.id}`), `Đã rời hàng chờ ${code}.`)}>
+        Rời hàng chờ {code}
+      </button>}
+    </li>
+  }
 
   return <section>
     <h1>Môn đã đăng ký</h1>
@@ -63,16 +75,12 @@ export default function MyRegistrations({ catalog }: { catalog: () => void }) {
       </article>)}</div>}
 
       <h2>Hàng chờ</h2>
-      {data.waitlist.length === 0 ? <p className="empty">Bạn không ở trong hàng chờ nào.</p> :
-        <ul className="waitlist">{data.waitlist.map(entry => {
-          const code = entry.section?.code ?? `Lớp #${entry.sectionId}`
-          return <li className="card actions" key={entry.id}>
-            <span><strong>{code}</strong> · Vị trí {entry.position ?? '—'} · <span className="badge">{waitlistLabels[entry.status]}</span></span>
-            {entry.status === 'WAITING' && <button disabled={busy} onClick={() => run(() => remove(`/waitlist/${entry.id}`), `Đã rời hàng chờ ${code}.`)}>
-              Rời hàng chờ {code}
-            </button>}
-          </li>
-        })}</ul>}
+      {waiting.length === 0 ? <p className="empty">Bạn không ở trong hàng chờ nào.</p> :
+        <ul className="waitlist">{waiting.map(waitlistCard)}</ul>}
+      {history.length > 0 && <>
+        <h2>Lịch sử hàng chờ</h2>
+        <ul className="waitlist">{history.map(waitlistCard)}</ul>
+      </>}
     </>}
   </section>
 }

@@ -3,10 +3,19 @@ import cors from 'cors';
 import express from 'express';
 import { errorHandler, notFoundHandler } from './common/error-handler';
 import { authRouter } from './auth/auth.routes';
-import { requireAuth } from './auth/auth.middleware';
+import { requireAuth, requireRole } from './auth/auth.middleware';
+import { createCatalogRepository } from './admin/catalog.repository';
+import { createCourseAdminRouter, createSectionsRouter } from './admin/catalog.routes';
 import { createCourseRepository } from './courses/courses.repository';
 import { createCoursesRouter } from './courses/courses.routes';
 import { pool } from './db/pool';
+import { createEnrolmentRepository } from './registration/enrolment.repository';
+import { createRegistrationRepository } from './registration/registration.repository';
+import { createRegistrationsRouter } from './registration/registrations.routes';
+import { createSemesterRepository, createSemestersRouter } from './semesters/semesters';
+import { createStudentRepository, createStudentsMeRouter } from './students/students';
+import { createWaitlistRepository } from './waitlist/waitlist.repository';
+import { createWaitlistRouter } from './waitlist/waitlist.routes';
 
 // Các địa chỉ frontend được phép gọi API kèm cookie (Vite dev và bản Docker).
 const allowedOrigins = (
@@ -29,11 +38,48 @@ export function createApp() {
   app.use('/api/v1/auth', authRouter);
 
   // Danh mục và chi tiết môn (M2): phải đăng nhập.
-  app.use('/api/v1/courses', requireAuth, createCoursesRouter(createCourseRepository(pool)));
+  // Thêm, sửa môn và môn tiên quyết (US-12, US-13): các route ghi chỉ cho ADMIN (kiểm tra trong router).
+  const catalog = createCatalogRepository(pool);
+  app.use(
+    '/api/v1/courses',
+    requireAuth,
+    createCoursesRouter(createCourseRepository(pool)),
+    createCourseAdminRouter(catalog),
+  );
 
-  // Bảo vệ API đăng ký học phần.
-  // Registration Router sẽ được gắn sau middleware này.
-  app.use('/api/v1/registrations', requireAuth);
+  // Lớp học phần (US-12): xem cho mọi người đã đăng nhập; tạo, sửa, danh sách lớp và hàng chờ cho ADMIN.
+  app.use('/api/v1/sections', requireAuth, createSectionsRouter(catalog));
+
+  // Đăng ký học phần (M2): phải đăng nhập và là sinh viên (bước 1, 2 trong api-endpoints-draft.md).
+  // studentId trong req.user là chuỗi (BIGINT của pg) nên đổi sang số.
+  app.use(
+    '/api/v1/registrations',
+    requireAuth,
+    requireRole('STUDENT'),
+    createRegistrationsRouter(
+      { ...createRegistrationRepository(pool), ...createEnrolmentRepository(pool) },
+      (req) => Number(req.user?.studentId),
+    ),
+  );
+
+  // Hàng chờ (M2, US-09): phải đăng nhập và là sinh viên.
+  app.use(
+    '/api/v1/waitlist',
+    requireAuth,
+    requireRole('STUDENT'),
+    createWaitlistRouter(createWaitlistRepository(pool), (req) => Number(req.user?.studentId)),
+  );
+
+  // Học kỳ: sinh viên và quản trị viên đều cần.
+  app.use('/api/v1/semesters', requireAuth, createSemestersRouter(createSemesterRepository(pool)));
+
+  // Thời khóa biểu và kết quả học của sinh viên đang đăng nhập.
+  app.use(
+    '/api/v1/students/me',
+    requireAuth,
+    requireRole('STUDENT'),
+    createStudentsMeRouter(createStudentRepository(pool), (req) => Number(req.user?.studentId)),
+  );
 
   app.use(notFoundHandler);
   app.use(errorHandler);

@@ -1,0 +1,300 @@
+{
+  "apiUrl": "http://localhost:3000",
+  "runAt": "2026-11-12T16:24:23.659Z",
+  "report": [
+    {
+      "scenario": "last-seat",
+      "run": 1,
+      "summary": {
+        "byOutcome": {
+          "201": 1,
+          "409 SECTION_FULL": 99
+        },
+        "timeMs": {
+          "min": 48,
+          "avg": 234,
+          "p95": 344,
+          "max": 354
+        }
+      },
+      "state": {
+        "capacity": 40,
+        "enrolledCount": 40,
+        "actualEnrolled": 40
+      },
+      "expected": "1 x 201, 99 x 409 SECTION_FULL, lớp có đúng 40",
+      "passed": true
+    },
+    {
+      "scenario": "last-seat",
+      "run": 2,
+      "summary": {
+        "byOutcome": {
+          "201": 1,
+          "409 SECTION_FULL": 99
+        },
+        "timeMs": {
+          "min": 50,
+          "avg": 210,
+          "p95": 315,
+          "max": 324
+        }
+      },
+      "state": {
+        "capacity": 40,
+        "enrolledCount": 40,
+        "actualEnrolled": 40
+      },
+      "expected": "1 x 201, 99 x 409 SECTION_FULL, lớp có đúng 40",
+      "passed": true
+    },
+    {
+      "scenario": "last-seat",
+      "run": 3,
+      "summary": {
+        "byOutcome": {
+          "201": 1,
+          "409 SECTION_FULL": 99
+        },
+        "timeMs": {
+          "min": 43,
+          "avg": 239,
+          "p95": 343,
+          "max": 350
+        }
+      },
+      "state": {
+        "capacity": 40,
+        "enrolledCount": 40,
+        "actualEnrolled": 40
+      },
+      "expected": "1 x 201, 99 x 409 SECTION_FULL, lớp có đúng 40",
+      "passed": true
+    },
+    {
+      "scenario": "empty-section",
+      "run": 1,
+      "summary": {
+        "byOutcome": {
+          "201": 40,
+          "409 SECTION_FULL": 60
+        },
+        "timeMs": {
+          "min": 31,
+          "avg": 255,
+          "p95": 361,
+          "max": 369
+        }
+      },
+      "state": {
+        "capacity": 40,
+        "enrolledCount": 40,
+        "actualEnrolled": 40
+      },
+      "expected": "40 x 201, 60 x 409 SECTION_FULL, lớp có đúng 40",
+      "passed": true
+    },
+    {
+      "scenario": "empty-section",
+      "run": 2,
+      "summary": {
+        "byOutcome": {
+          "201": 40,
+          "409 SECTION_FULL": 60
+        },
+        "timeMs": {
+          "min": 30,
+          "avg": 295,
+          "p95": 419,
+          "max": 428
+        }
+      },
+      "state": {
+        "capacity": 40,
+        "enrolledCount": 40,
+        "actualEnrolled": 40
+      },
+      "expected": "40 x 201, 60 x 409 SECTION_FULL, lớp có đúng 40",
+      "passed": true
+    },
+    {
+      "scenario": "empty-section",
+      "run": 3,
+      "summary": {
+        "byOutcome": {
+          "201": 40,
+          "409 SECTION_FULL": 60
+        },
+        "timeMs": {
+          "min": 32,
+          "avg": 290,
+          "p95": 409,
+          "max": 417
+        }
+      },
+      "state": {
+        "capacity": 40,
+        "enrolledCount": 40,
+        "actualEnrolled": 40
+      },
+      "expected": "40 x 201, 60 x 409 SECTION_FULL, lớp có đúng 40",
+      "passed": true
+    },
+    {
+      "scenario": "double-click",
+      "run": 1,
+      "summary": {
+        "byOutcome": {
+          "201": 1,
+          "409 ALREADY_ENROLLED": 9
+        },
+        "timeMs": {
+          "min": 23,
+          "avg": 84,
+          "p95": 153,
+          "max": 153
+        }
+      },
+      "state": {
+        "capacity": 40,
+        "enrolledCount": 36,
+        "actualEnrolled": 36
+      },
+      "expected": "1 x 201, 9 x 409 ALREADY_ENROLLED, lớp tăng đúng 1",
+      "passed": true
+    },
+    {
+      "scenario": "double-click",
+      "run": 2,
+      "summary": {
+        "byOutcome": {
+          "201": 1,
+          "409 ALREADY_ENROLLED": 9
+        },
+        "timeMs": {
+          "min": 19,
+          "avg": 91,
+          "p95": 152,
+          "max": 152
+        }
+      },
+      "state": {
+        "capacity": 40,
+        "enrolledCount": 36,
+        "actualEnrolled": 36
+      },
+      "expected": "1 x 201, 9 x 409 ALREADY_ENROLLED, lớp tăng đúng 1",
+      "passed": true
+    },
+    {
+      "scenario": "double-click",
+      "run": 3,
+      "summary": {
+        "byOutcome": {
+          "201": 1,
+          "409 ALREADY_ENROLLED": 9
+        },
+        "timeMs": {
+          "min": 20,
+          "avg": 76,
+          "p95": 134,
+          "max": 134
+        }
+      },
+      "state": {
+        "capacity": 40,
+        "enrolledCount": 36,
+        "actualEnrolled": 36
+      },
+      "expected": "1 x 201, 9 x 409 ALREADY_ENROLLED, lớp tăng đúng 1",
+      "passed": true
+    },
+    {
+      "scenario": "drop-promotion",
+      "run": 1,
+      "summary": {
+        "byOutcome": {
+          "204": 5
+        },
+        "timeMs": {
+          "min": 19,
+          "avg": 38,
+          "p95": 56,
+          "max": 56
+        }
+      },
+      "state": {
+        "capacity": 30,
+        "enrolledCount": 30,
+        "actualEnrolled": 30
+      },
+      "promoted": [
+        "std_181",
+        "std_182",
+        "std_183",
+        "std_184",
+        "std_185"
+      ],
+      "expected": "5 x 204, đúng 5 người đầu hàng (std_181..std_185) PROMOTED, lớp vẫn đầy",
+      "passed": true
+    },
+    {
+      "scenario": "drop-promotion",
+      "run": 2,
+      "summary": {
+        "byOutcome": {
+          "204": 5
+        },
+        "timeMs": {
+          "min": 16,
+          "avg": 37,
+          "p95": 60,
+          "max": 60
+        }
+      },
+      "state": {
+        "capacity": 30,
+        "enrolledCount": 30,
+        "actualEnrolled": 30
+      },
+      "promoted": [
+        "std_181",
+        "std_182",
+        "std_183",
+        "std_184",
+        "std_185"
+      ],
+      "expected": "5 x 204, đúng 5 người đầu hàng (std_181..std_185) PROMOTED, lớp vẫn đầy",
+      "passed": true
+    },
+    {
+      "scenario": "drop-promotion",
+      "run": 3,
+      "summary": {
+        "byOutcome": {
+          "204": 5
+        },
+        "timeMs": {
+          "min": 17,
+          "avg": 36,
+          "p95": 55,
+          "max": 55
+        }
+      },
+      "state": {
+        "capacity": 30,
+        "enrolledCount": 30,
+        "actualEnrolled": 30
+      },
+      "promoted": [
+        "std_181",
+        "std_182",
+        "std_183",
+        "std_184",
+        "std_185"
+      ],
+      "expected": "5 x 204, đúng 5 người đầu hàng (std_181..std_185) PROMOTED, lớp vẫn đầy",
+      "passed": true
+    }
+  ]
+}
