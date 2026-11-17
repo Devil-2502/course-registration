@@ -13,7 +13,7 @@ const entry: WaitlistEntry = { id: 9, studentId: 1, sectionId: 30, position: 2, 
 
 describe('US-10 và US-09: Môn đã đăng ký và hàng chờ', () => {
   it('lượt CANCELLED nằm trong lịch sử, trạng thái đang chờ vẫn trống', async () => {
-    mockApi(path => path.endsWith('/registrations') ? json([]) : json([{ ...entry, status: 'CANCELLED', position: null }]))
+    mockApi(path => path.endsWith('/swap-requests') ? json([]) : path.endsWith('/registrations') ? json([]) : json([{ ...entry, status: 'CANCELLED', position: null }]))
     render(<MyRegistrations catalog={() => {}} />)
     expect(await screen.findByText('Bạn không ở trong hàng chờ nào.')).toBeVisible()
     expect(screen.getByRole('heading', { name: 'Lịch sử hàng chờ' })).toBeVisible()
@@ -21,7 +21,7 @@ describe('US-10 và US-09: Môn đã đăng ký và hàng chờ', () => {
     expect(screen.queryByRole('button', { name: /Rời hàng chờ/ })).not.toBeInTheDocument()
   })
   it('không cho hủy lại môn đã hủy hoặc rời mục đã được xếp lớp', async () => {
-    mockApi(path => path.endsWith('/registrations') ? json([{ ...registration, status: 'DROPPED' }]) : json([{ ...entry, status: 'PROMOTED', position: null }]))
+    mockApi(path => path.endsWith('/swap-requests') ? json([]) : path.endsWith('/registrations') ? json([{ ...registration, status: 'DROPPED' }]) : json([{ ...entry, status: 'PROMOTED', position: null }]))
     render(<MyRegistrations catalog={() => {}} />)
     expect(await screen.findByText('Bạn chưa đăng ký lớp nào trong học kỳ này.')).toBeVisible()
     expect(screen.getByText('Đã được xếp lớp')).toBeVisible()
@@ -32,7 +32,7 @@ describe('US-10 và US-09: Môn đã đăng ký và hàng chờ', () => {
     let finish: (response: Response) => void = () => {}
     const fetch = mockApi((path, options) => {
       if (options?.method === 'DELETE') return new Promise(resolve => { finish = resolve })
-      return path.endsWith('/registrations') ? json([registration]) : json([entry])
+      return path.endsWith('/swap-requests') ? json([]) : path.endsWith('/registrations') ? json([registration]) : json([entry])
     })
     render(<MyRegistrations catalog={() => {}} />)
     await userEvent.click(await screen.findByRole('button', { name: 'Hủy lớp CS201-02' }))
@@ -44,7 +44,7 @@ describe('US-10 và US-09: Môn đã đăng ký và hàng chờ', () => {
     expect(await screen.findByText('Đã hủy lớp CS201-02.')).toBeVisible()
   })
   it('hiển thị lớp đã đăng ký kèm lịch và hàng chờ kèm vị trí', async () => {
-    mockApi(path => path.endsWith('/registrations') ? json([registration]) : json([entry]))
+    mockApi(path => path.endsWith('/swap-requests') ? json([]) : path.endsWith('/registrations') ? json([registration]) : json([entry]))
     render(<MyRegistrations catalog={() => {}} />)
     expect(await screen.findByRole('heading', { name: 'CS201-02 — Data Structures and Algorithms' })).toBeVisible()
     expect(screen.getByText('Thứ 4 · Tiết 4–6')).toBeVisible()
@@ -67,7 +67,7 @@ describe('US-10 và US-09: Môn đã đăng ký và hàng chờ', () => {
     expect(await screen.findByText('Bạn chưa đăng ký lớp nào trong học kỳ này.')).toBeVisible()
   })
   it('bấm "Không hủy" thì không gửi yêu cầu', async () => {
-    const fetch = mockApi(path => path.endsWith('/registrations') ? json([registration]) : json([]))
+    const fetch = mockApi(path => path.endsWith('/swap-requests') ? json([]) : path.endsWith('/registrations') ? json([registration]) : json([]))
     render(<MyRegistrations catalog={() => {}} />)
     await userEvent.click(await screen.findByRole('button', { name: 'Hủy lớp CS201-02' }))
     await userEvent.click(screen.getByRole('button', { name: 'Không hủy' }))
@@ -81,7 +81,7 @@ describe('US-10 và US-09: Môn đã đăng ký và hàng chờ', () => {
         if (fail) return json({ code: 'FORBIDDEN', message: 'Not your entry.' }, 403)
         return new Response(null, { status: 204 })
       }
-      return path.endsWith('/registrations') ? json([]) : json([{ ...entry, section: { ...course.sections[0], code: 'EN101-01' } }])
+      return path.endsWith('/swap-requests') ? json([]) : path.endsWith('/registrations') ? json([]) : json([{ ...entry, section: { ...course.sections[0], code: 'EN101-01' } }])
     })
     render(<MyRegistrations catalog={() => {}} />)
     await userEvent.click(await screen.findByRole('button', { name: 'Rời hàng chờ EN101-01' }))

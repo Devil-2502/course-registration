@@ -1,37 +1,53 @@
 import { useCallback, useRef, useState } from 'react'
-import { remove, request } from './api'
-import type { Registration, WaitlistEntry } from './api'
+import { post, remove, request } from './api'
+import type { Registration, SwapRequest, SwapResult, WaitlistEntry } from './api'
 import { ErrorNotice, Loading } from './components'
 import { slotText } from './days'
+import SwapPicker, { SwapError } from './SwapPicker'
 import { useResource } from './useResource'
+
+// Câu báo kết quả sau khi xin đổi lớp (cải tiến 2).
+function swapMessage(result: SwapResult): string {
+  const { fromSection, toSection } = result.request
+  if (result.outcome === 'MOVED') return `Đã chuyển từ ${fromSection.code} sang ${toSection.code}.`
+  if (result.outcome === 'SWAPPED') return `Đã đổi chéo với một bạn ở ${toSection.code}: bạn đã sang ${toSection.code}.`
+  return `Lớp ${toSection.code} đã đầy. Đã lưu yêu cầu: bạn vẫn giữ chỗ ở ${fromSection.code}, hệ thống tự đổi khi có người muốn đổi ngược.`
+}
+
+const swapLabels: Record<SwapRequest['status'], string> = {
+  OPEN: 'Đang chờ người đổi ngược', COMPLETED: 'Đã đổi xong', CANCELLED: 'Đã hủy',
+}
 
 const waitlistLabels: Record<WaitlistEntry['status'], string> = {
   WAITING: 'Đang chờ', PROMOTED: 'Đã được xếp lớp', SKIPPED: 'Đã bỏ qua', CANCELLED: 'Đã rời hàng chờ',
 }
 
-// UI-07 Môn đã đăng ký: hủy môn (US-10), xem và rời hàng chờ (US-09)
+// UI-07 Môn đã đăng ký: hủy môn (US-10), xem và rời hàng chờ (US-09), đổi lớp (cải tiến 2)
 export default function MyRegistrations({ catalog }: { catalog: () => void }) {
   const { data, error, loading, retry } = useResource(useCallback(async () => {
-    const [registrations, waitlist] = await Promise.all([
+    const [registrations, waitlist, swaps] = await Promise.all([
       request<Registration[]>('/registrations'),
       request<WaitlistEntry[]>('/waitlist'),
+      request<SwapRequest[]>('/swap-requests'),
     ])
-    return { registrations, waitlist }
+    return { registrations, waitlist, swaps }
   }, []))
   const [confirming, setConfirming] = useState<number>()
+  const [swapping, setSwapping] = useState<number>()
   const [busy, setBusy] = useState(false)
   const sending = useRef(false)
   const [actionError, setActionError] = useState<unknown>()
   const [message, setMessage] = useState<string>()
 
   // Gửi một thao tác, khóa nút trong lúc chờ, rồi tải lại vì máy chủ có thể vừa đẩy người chờ vào lớp
-  async function run(action: () => Promise<unknown>, done: string) {
+  async function run<T>(action: () => Promise<T>, done: string | ((result: T) => string)) {
     if (sending.current) return
     sending.current = true
     setBusy(true); setActionError(undefined); setMessage(undefined)
     try {
-      await action()
-      setMessage(done)
+      const result = await action()
+      setMessage(typeof done === 'string' ? done : done(result))
+      setSwapping(undefined)
       retry()
     } catch (failure) { setActionError(failure) } finally { sending.current = false; setBusy(false); setConfirming(undefined) }
   }
@@ -53,7 +69,7 @@ export default function MyRegistrations({ catalog }: { catalog: () => void }) {
   return <section>
     <h1>Môn đã đăng ký</h1>
     {message && <p className="notice success" role="status">{message}</p>}
-    {actionError !== undefined && <ErrorNotice error={actionError} />}
+    {actionError !== undefined && <SwapError error={actionError} />}
     {loading ? <Loading /> : error ? <ErrorNotice error={error} retry={retry} /> : data && <>
       <h2>Lớp đã đăng ký</h2>
       {registrations.length === 0 ? <div className="empty">
@@ -71,8 +87,26 @@ export default function MyRegistrations({ catalog }: { catalog: () => void }) {
             </button>
             <button disabled={busy} onClick={() => setConfirming(undefined)}>Không hủy</button>
           </div>
-        </div> : <button disabled={busy} onClick={() => setConfirming(item.id)}>Hủy lớp {item.section.code}</button>}
+        </div> : swapping === item.id ? <SwapPicker registration={item} busy={busy} close={() => setSwapping(undefined)}
+          choose={sectionId => run(() => post<SwapResult>('/swap-requests', { toSectionId: sectionId }), swapMessage)} /> :
+          <div className="actions">
+            <button disabled={busy} onClick={() => setConfirming(item.id)}>Hủy lớp {item.section.code}</button>
+            <button disabled={busy} onClick={() => { setSwapping(item.id); setActionError(undefined); setMessage(undefined) }}>Đổi lớp {item.section.code}</button>
+          </div>}
       </article>)}</div>}
+
+      {data.swaps.length > 0 && <>
+        <h2>Yêu cầu đổi lớp</h2>
+        <ul className="waitlist">{data.swaps.map(swap => <li className="card actions" key={swap.id}>
+          <span><strong>{swap.fromSection.code} → {swap.toSection.code}</strong> · <span className="badge">
+            {swap.outcome === 'SWAPPED' ? 'Đã đổi chéo' : swap.outcome === 'MOVED' ? 'Đã chuyển lớp' : swapLabels[swap.status]}
+          </span></span>
+          {swap.status === 'OPEN' && <button disabled={busy}
+            onClick={() => run(() => remove(`/swap-requests/${swap.id}`), `Đã hủy yêu cầu đổi ${swap.fromSection.code} → ${swap.toSection.code}.`)}>
+            Hủy yêu cầu {swap.fromSection.code} → {swap.toSection.code}
+          </button>}
+        </li>)}</ul>
+      </>}
 
       <h2>Hàng chờ</h2>
       {waiting.length === 0 ? <p className="empty">Bạn không ở trong hàng chờ nào.</p> :

@@ -188,3 +188,19 @@ export interface SuggestionResult {
   truncated: boolean
   suggestions: ScheduleSuggestion[]
 }
+// Đổi lớp an toàn (cải tiến 2), khớp SwapRequest và SwapResult trong docs/openapi-spec.yaml.
+export interface SwapRequest {
+  id: number
+  courseCode: string
+  courseName: string
+  fromSection: { id: number; code: string }
+  toSection: { id: number; code: string }
+  status: 'OPEN' | 'COMPLETED' | 'CANCELLED'
+  outcome: 'MOVED' | 'SWAPPED' | null
+  createdAt: string
+  resolvedAt: string | null
+}
+export interface SwapResult {
+  outcome: 'MOVED' | 'SWAPPED' | 'PENDING'
+  request: SwapRequest
+}

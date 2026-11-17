@@ -18,6 +18,11 @@ const messages: Record<string, string> = {
   PREREQUISITE_NOT_MET: 'Bạn chưa đạt môn tiên quyết.',
   CREDIT_LIMIT_EXCEEDED: 'Vượt giới hạn tín chỉ của học kỳ.',
   COURSE_ALREADY_PASSED: 'Bạn đã đạt môn này rồi.',
+  NOT_ENROLLED_IN_COURSE: 'Bạn chưa học lớp nào của môn này nên không thể đổi lớp.',
+  SAME_SECTION: 'Bạn đang ở đúng lớp này rồi.',
+  SWAP_REQUEST_EXISTS: 'Bạn đã có một yêu cầu đổi lớp đang chờ cho lớp này. Hãy hủy yêu cầu cũ trước.',
+  SWAP_REQUEST_NOT_OPEN: 'Yêu cầu này không còn đang chờ (đã đổi xong hoặc đã hủy).',
+  REGISTRATION_CHANGED: 'Lớp của bạn vừa thay đổi trong lúc xử lý. Hãy thử lại.',
 }
 
 // Câu tiếng Việt của một vi phạm; mã chưa có trong bảng thì giữ message của máy chủ.
