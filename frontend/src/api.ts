@@ -152,3 +152,38 @@ export function remove(path: string) {
 export function put<T>(path: string, body: unknown) {
   return request<T>(path, { method: 'PUT', body: JSON.stringify(body) })
 }
+// Gợi ý thời khóa biểu (cải tiến 1), khớp ScheduleSuggestionResult trong docs/openapi-spec.yaml.
+export interface SuggestionPreferences {
+  avoidMorning: boolean
+  compactDays: boolean
+  freeDays: number[]
+}
+export interface SuggestedSection {
+  sectionId: number
+  sectionCode: string
+  courseId: number
+  courseCode: string
+  courseName: string
+  credits: number
+  remainingSeats: number
+  slots: Slot[]
+}
+export type CourseStatus = 'INCLUDED' | 'ALREADY_ENROLLED' | 'COURSE_ALREADY_PASSED' | 'PREREQUISITE_NOT_MET' | 'NO_AVAILABLE_SECTION' | 'CLASHES_WITH_ENROLLED'
+export interface ScheduleSuggestion {
+  rank: number
+  penalty: number
+  metrics: { studyDays: number; morningSessions: number; gapPeriods: number; busyFreeDays: number[] }
+  sections: SuggestedSection[]
+}
+export interface SuggestionResult {
+  semesterId: number
+  maxCredits: number
+  currentCredits: number
+  requestedCredits: number
+  exceedsCreditLimit: boolean
+  courses: { course: Course; status: CourseStatus; missingCourses?: { id: number; code: string; name: string }[] }[]
+  enrolled: SuggestedSection[]
+  totalCombinations: number
+  truncated: boolean
+  suggestions: ScheduleSuggestion[]
+}

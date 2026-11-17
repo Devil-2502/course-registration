@@ -28,6 +28,8 @@ tags:
     description: Queue for full sections.
   - name: Students
     description: Data of the signed-in student.
+  - name: Suggestions
+    description: Automatic timetable suggestions (improvement 1).
 security:
   - cookieAuth: []
 
@@ -731,6 +733,45 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  /schedule-suggestions:
+    post:
+      tags: [Suggestions]
+      summary: Suggest clash-free timetables for the courses a student wants to take
+      description: |
+        Picks one open section per course so that no two sections clash, including the
+        student's current ENROLLED sections, and ranks the combinations by the student's
+        preferences (lowest penalty first). Read-only: nothing is reserved; the student
+        still registers each section with POST /registrations.
+      operationId: suggestSchedules
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleSuggestionRequest'
+            example:
+              courseIds: [2, 9, 19]
+              preferences:
+                avoidMorning: false
+                compactDays: true
+                freeDays: [6, 7]
+              limit: 5
+      responses:
+        '200':
+          description: Ranked timetable suggestions and the reason each course was included or left out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleSuggestionResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 components:
   securitySchemes:
     cookieAuth:
@@ -1165,3 +1206,138 @@ components:
           maximum: 10
         passed:
           type: boolean
+
+    ScheduleSuggestionRequest:
+      type: object
+      required: [courseIds]
+      properties:
+        courseIds:
+          type: array
+          minItems: 1
+          maxItems: 8
+          items:
+            type: integer
+        preferences:
+          type: object
+          properties:
+            avoidMorning:
+              type: boolean
+              description: Penalise sessions starting in periods 1-6.
+            compactDays:
+              type: boolean
+              description: Prefer fewer days on campus.
+            freeDays:
+              type: array
+              description: Days the student wants free (1 = Monday ... 7 = Sunday).
+              items:
+                type: integer
+                minimum: 1
+                maximum: 7
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 5
+
+    SuggestedSection:
+      type: object
+      required: [sectionId, sectionCode, courseId, courseCode, courseName, credits, remainingSeats, slots]
+      properties:
+        sectionId:
+          type: integer
+        sectionCode:
+          type: string
+        courseId:
+          type: integer
+        courseCode:
+          type: string
+        courseName:
+          type: string
+        credits:
+          type: integer
+        remainingSeats:
+          type: integer
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleSlot'
+
+    ScheduleSuggestion:
+      type: object
+      required: [rank, penalty, metrics, sections]
+      properties:
+        rank:
+          type: integer
+        penalty:
+          type: integer
+          description: Lower is better.
+        metrics:
+          type: object
+          required: [studyDays, morningSessions, gapPeriods, busyFreeDays]
+          properties:
+            studyDays:
+              type: integer
+            morningSessions:
+              type: integer
+            gapPeriods:
+              type: integer
+            busyFreeDays:
+              type: array
+              items:
+                type: integer
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/SuggestedSection'
+
+    ScheduleSuggestionResult:
+      type: object
+      required: [semesterId, maxCredits, currentCredits, requestedCredits, exceedsCreditLimit, courses, enrolled, totalCombinations, truncated, suggestions]
+      properties:
+        semesterId:
+          type: integer
+        maxCredits:
+          type: integer
+        currentCredits:
+          type: integer
+        requestedCredits:
+          type: integer
+        exceedsCreditLimit:
+          type: boolean
+        courses:
+          type: array
+          items:
+            type: object
+            required: [course, status]
+            properties:
+              course:
+                $ref: '#/components/schemas/Course'
+              status:
+                type: string
+                enum: [INCLUDED, ALREADY_ENROLLED, COURSE_ALREADY_PASSED, PREREQUISITE_NOT_MET, NO_AVAILABLE_SECTION, CLASHES_WITH_ENROLLED]
+              missingCourses:
+                type: array
+                description: Only when status is PREREQUISITE_NOT_MET.
+                items:
+                  type: object
+                  required: [id, code, name]
+                  properties:
+                    id:
+                      type: integer
+                    code:
+                      type: string
+                    name:
+                      type: string
+        enrolled:
+          type: array
+          description: Sections the student already has; they appear in every suggestion's week.
+          items:
+            $ref: '#/components/schemas/SuggestedSection'
+        totalCombinations:
+          type: integer
+        truncated:
+          type: boolean
+        suggestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleSuggestion'

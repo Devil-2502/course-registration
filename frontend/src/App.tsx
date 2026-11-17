@@ -10,9 +10,10 @@ import CompletedCourses from './CompletedCourses'
 import CourseDetails from './CourseDetails'
 import MyRegistrations from './MyRegistrations'
 import Schedule from './Schedule'
+import Suggestions from './Suggestions'
 import './App.css'
 
-type Page = 'catalog' | 'schedule' | 'registrations' | 'completed'
+type Page = 'catalog' | 'schedule' | 'suggestions' | 'registrations' | 'completed'
 
 function App() {
   const session = useResource(useCallback(() => request<User>('/auth/me'), []))
@@ -62,6 +63,7 @@ function App() {
       {user.role === 'STUDENT' && <>
         <button aria-current={page === 'catalog' ? 'page' : undefined} onClick={() => open('catalog')}>Danh mục môn học</button>
         <button aria-current={page === 'schedule' ? 'page' : undefined} onClick={() => open('schedule')}>Thời khóa biểu tuần</button>
+        <button aria-current={page === 'suggestions' ? 'page' : undefined} onClick={() => open('suggestions')}>Gợi ý thời khóa biểu</button>
         <button aria-current={page === 'registrations' ? 'page' : undefined} onClick={() => open('registrations')}>Môn đã đăng ký</button>
         <button aria-current={page === 'completed' ? 'page' : undefined} onClick={() => open('completed')}>Kết quả học tập</button>
       </>}
@@ -69,7 +71,8 @@ function App() {
     </nav></header>
     <main>{error !== undefined && <ErrorNotice error={error} />}
       {user.role === 'ADMIN' ? <Admin /> : page === 'schedule' ?
-        <Schedule catalog={() => open('catalog')} /> : page === 'registrations' ?
+        <Schedule catalog={() => open('catalog')} /> : page === 'suggestions' ?
+        <Suggestions schedule={() => open('schedule')} /> : page === 'registrations' ?
         <MyRegistrations catalog={() => open('catalog')} /> : page === 'completed' ?
         <CompletedCourses /> : courseId !== undefined ?
           <CourseDetails key={courseId} id={courseId} back={() => setCourseId(undefined)} /> : <Catalog openCourse={setCourseId} />}
