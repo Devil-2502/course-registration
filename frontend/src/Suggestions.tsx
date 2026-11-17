@@ -33,7 +33,7 @@ function weekOf(result: SuggestionResult, suggestion: ScheduleSuggestion): Weekl
 }
 
 function metricsText({ metrics }: ScheduleSuggestion) {
-  const parts = [`${metrics.studyDays} ngày đến trường`, `${metrics.morningSessions} buổi sáng`, `${metrics.gapPeriods} tiết trống`]
+  const parts = [`${metrics.studyDays} ngày đến trường`, `${metrics.morningSessions} buổi sáng`, `${metrics.afternoonSessions} buổi chiều`, `${metrics.gapPeriods} tiết trống`]
   if (metrics.busyFreeDays.length > 0) parts.push(`vẫn học vào ${metrics.busyFreeDays.map(day => days[day - 1]).join(', ')}`)
   return parts.join(' · ')
 }
@@ -44,7 +44,7 @@ export default function Suggestions({ schedule }: { schedule: () => void }) {
   const catalog = useResource(useCallback(() => request<CoursePage>('/courses?pageSize=100'), []))
   const [filter, setFilter] = useState('')
   const [selected, setSelected] = useState<number[]>([])
-  const [preferences, setPreferences] = useState<SuggestionPreferences>({ avoidMorning: false, compactDays: false, freeDays: [] })
+  const [preferences, setPreferences] = useState<SuggestionPreferences>({ avoidMorning: false, avoidAfternoon: false, compactDays: false, freeDays: [] })
   const [result, setResult] = useState<SuggestionResult>()
   const [chosen, setChosen] = useState(0)
   const [busy, setBusy] = useState(false)
@@ -104,6 +104,7 @@ export default function Suggestions({ schedule }: { schedule: () => void }) {
         <fieldset><legend>Sở thích</legend>
           <div className="inline-options">
             <label><input type="checkbox" checked={preferences.avoidMorning} onChange={event => setPreferences({ ...preferences, avoidMorning: event.target.checked })} />Tránh học buổi sáng (tiết 1–6)</label>
+            <label><input type="checkbox" checked={preferences.avoidAfternoon} onChange={event => setPreferences({ ...preferences, avoidAfternoon: event.target.checked })} />Tránh học buổi chiều (tiết 7–12)</label>
             <label><input type="checkbox" checked={preferences.compactDays} onChange={event => setPreferences({ ...preferences, compactDays: event.target.checked })} />Dồn lịch vào ít ngày</label>
           </div>
           <p>Ngày muốn nghỉ:</p>

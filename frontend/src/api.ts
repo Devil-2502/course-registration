@@ -155,6 +155,7 @@ export function put<T>(path: string, body: unknown) {
 // Gợi ý thời khóa biểu (cải tiến 1), khớp ScheduleSuggestionResult trong docs/openapi-spec.yaml.
 export interface SuggestionPreferences {
   avoidMorning: boolean
+  avoidAfternoon: boolean
   compactDays: boolean
   freeDays: number[]
 }
@@ -172,7 +173,7 @@ export type CourseStatus = 'INCLUDED' | 'ALREADY_ENROLLED' | 'COURSE_ALREADY_PAS
 export interface ScheduleSuggestion {
   rank: number
   penalty: number
-  metrics: { studyDays: number; morningSessions: number; gapPeriods: number; busyFreeDays: number[] }
+  metrics: { studyDays: number; morningSessions: number; afternoonSessions: number; gapPeriods: number; busyFreeDays: number[] }
   sections: SuggestedSection[]
 }
 export interface SuggestionResult {

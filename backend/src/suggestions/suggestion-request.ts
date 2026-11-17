@@ -42,7 +42,7 @@ export function parseSuggestionRequest(body: unknown): SuggestionRequest {
   if (!preferences) {
     errors.preferences = 'must be an object';
   } else {
-    for (const key of ['avoidMorning', 'compactDays'] as const) {
+    for (const key of ['avoidMorning', 'avoidAfternoon', 'compactDays'] as const) {
       if (preferences[key] !== undefined && typeof preferences[key] !== 'boolean') {
         errors[`preferences.${key}`] = 'must be a boolean';
       }
@@ -65,6 +65,7 @@ export function parseSuggestionRequest(body: unknown): SuggestionRequest {
     courseIds: [...new Set(courseIds as number[])],
     preferences: {
       avoidMorning: prefs.avoidMorning === true,
+      avoidAfternoon: prefs.avoidAfternoon === true,
       compactDays: prefs.compactDays === true,
       freeDays: [...new Set((prefs.freeDays as number[] | undefined) ?? [])].sort((a, b) => a - b),
     },

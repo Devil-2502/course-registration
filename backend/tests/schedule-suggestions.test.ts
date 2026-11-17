@@ -71,7 +71,12 @@ describe('parseSuggestionRequest', () => {
       parseSuggestionRequest({ courseIds: [2, 7, 2], preferences: { freeDays: [6, 1, 6] } }),
     ).toEqual({
       courseIds: [2, 7],
-      preferences: { avoidMorning: false, compactDays: false, freeDays: [1, 6] },
+      preferences: {
+        avoidMorning: false,
+        avoidAfternoon: false,
+        compactDays: false,
+        freeDays: [1, 6],
+      },
       limit: 5,
     });
   });
@@ -83,6 +88,7 @@ describe('parseSuggestionRequest', () => {
     [{ courseIds: ['2'] }, 'courseIds'],
     [{ courseIds: [2], preferences: [] }, 'preferences'],
     [{ courseIds: [2], preferences: { avoidMorning: 'yes' } }, 'preferences.avoidMorning'],
+    [{ courseIds: [2], preferences: { avoidAfternoon: 1 } }, 'preferences.avoidAfternoon'],
     [{ courseIds: [2], preferences: { freeDays: [8] } }, 'preferences.freeDays'],
     [{ courseIds: [2], limit: 11 }, 'limit'],
   ])('từ chối %j (lỗi ở %s)', (body, field) => {

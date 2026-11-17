@@ -31,8 +31,8 @@ const result: SuggestionResult = {
   enrolled: [section(11, 'MA101-01', 1, 1, 3)],
   totalCombinations: 2, truncated: false,
   suggestions: [
-    { rank: 1, penalty: 0, metrics: { studyDays: 2, morningSessions: 3, gapPeriods: 0, busyFreeDays: [] }, sections: [section(22, 'CS201-02', 1, 4, 6), section(71, 'PE101-01', 7, 1, 2)] },
-    { rank: 2, penalty: 40, metrics: { studyDays: 3, morningSessions: 3, gapPeriods: 0, busyFreeDays: [2] }, sections: [section(23, 'CS201-03', 2, 1, 3), section(71, 'PE101-01', 7, 1, 2)] },
+    { rank: 1, penalty: 0, metrics: { studyDays: 2, morningSessions: 3, afternoonSessions: 0, gapPeriods: 0, busyFreeDays: [] }, sections: [section(22, 'CS201-02', 1, 4, 6), section(71, 'PE101-01', 7, 1, 2)] },
+    { rank: 2, penalty: 40, metrics: { studyDays: 3, morningSessions: 3, afternoonSessions: 1, gapPeriods: 0, busyFreeDays: [2] }, sections: [section(23, 'CS201-03', 2, 1, 3), section(71, 'PE101-01', 7, 1, 2)] },
   ],
 }
 
@@ -44,6 +44,7 @@ async function search(controls: ReturnType<typeof userEvent.setup>) {
   await controls.click(await screen.findByRole('checkbox', { name: /CS201/ }))
   await controls.click(screen.getByRole('checkbox', { name: /PE101/ }))
   await controls.click(screen.getByRole('checkbox', { name: 'Dồn lịch vào ít ngày' }))
+  await controls.click(screen.getByRole('checkbox', { name: 'Tránh học buổi chiều (tiết 7–12)' }))
   await controls.click(screen.getByRole('checkbox', { name: 'Thứ 3' }))
   await controls.click(screen.getByRole('button', { name: 'Tìm phương án' }))
 }
@@ -57,7 +58,7 @@ describe('Cải tiến 1: Gợi ý thời khóa biểu', () => {
     await search(controls)
     const call = fetch.mock.calls.find(([input]) => String(input).endsWith('/schedule-suggestions'))
     expect(JSON.parse(String(call?.[1]?.body))).toEqual({
-      courseIds: [2, 19], preferences: { avoidMorning: false, compactDays: true, freeDays: [2] },
+      courseIds: [2, 19], preferences: { avoidMorning: false, avoidAfternoon: true, compactDays: true, freeDays: [2] },
     })
     expect(await screen.findByText(/Chưa đạt môn tiên quyết/)).toHaveTextContent('CS201 – Data Structures and Algorithms')
     expect(screen.getByText('Tìm thấy 2 cách xếp không trùng lịch, đây là 2 phương án tốt nhất.')).toBeVisible()
@@ -75,7 +76,7 @@ describe('Cải tiến 1: Gợi ý thời khóa biểu', () => {
     await search(controls)
     await controls.click(await screen.findByRole('button', { name: 'Phương án 2' }))
     expect(screen.getByRole('button', { name: 'Phương án 2' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByText(/vẫn học vào Thứ 3/)).toBeVisible()
+    expect(screen.getByText(/1 buổi chiều · 0 tiết trống · vẫn học vào Thứ 3/)).toBeVisible()
     expect(within(screen.getByRole('table', { name: 'Các lớp sẽ đăng ký' })).getByText('CS201-03')).toBeVisible()
   })
 

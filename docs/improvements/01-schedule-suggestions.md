@@ -25,6 +25,12 @@ Feature: Gợi ý thời khóa biểu
     Then phương án 1 là CS101-02 (thứ Sáu)
     And phương án CS101-01 (thứ Ba) ghi "vẫn học vào Thứ 3"
 
+  Scenario: Tránh học buổi chiều
+    Given sinh viên std_500 chưa đăng ký lớp nào
+    When std_500 yêu cầu gợi ý cho CS101 và chọn tránh học buổi chiều
+    Then phương án 1 là CS101-02 (thứ Sáu, tiết 1-3)
+    And phương án CS101-01 (thứ Ba, tiết 7-9) có 1 buổi chiều
+
   Scenario: Ghi rõ lý do môn không được xếp
     When std_402 yêu cầu gợi ý cho CS101, CS301 và MA101
     Then CS101 có trạng thái COURSE_ALREADY_PASSED
@@ -45,7 +51,7 @@ Feature: Gợi ý thời khóa biểu
 ```json
 {
   "courseIds": [2, 9, 19],
-  "preferences": { "avoidMorning": false, "compactDays": true, "freeDays": [6, 7] },
+  "preferences": { "avoidMorning": false, "avoidAfternoon": false, "compactDays": true, "freeDays": [6, 7] },
   "limit": 5
 }
 ```
@@ -71,6 +77,7 @@ kiểm tra và cơ chế khóa chống tranh chấp chỗ cuối cùng vẫn áp
    |---|---|---|
    | Ngày muốn nghỉ nhưng vẫn có lịch | 40 / ngày | luôn tính nếu có chọn ngày nghỉ |
    | Buổi học bắt đầu tiết 1-6 | 10 / buổi | khi chọn "Tránh học buổi sáng" |
+   | Buổi học bắt đầu tiết 7-12 | 10 / buổi | khi chọn "Tránh học buổi chiều" |
    | Số ngày phải đến trường | 10 / ngày | khi chọn "Dồn lịch vào ít ngày" |
    | Tiết trống giữa hai buổi cùng ngày | 2 / tiết | luôn tính |
 
@@ -87,7 +94,7 @@ lịch bị cắt sớm và có giới hạn 2 000 phương án, nên mỗi yêu
 | Unit | `backend/tests/schedule-suggester.test.ts` | Đo tuần học, điểm phạt, quay lui, giới hạn, thứ tự ổn định |
 | Unit + route | `backend/tests/schedule-suggestions.test.ts` | Kiểm tra body, lý do từng môn, tín chỉ, 400 / 404 |
 | CSDL thật | `backend/tests/schedule-suggestions.repository.db.test.ts` | Đọc đúng học kỳ, lớp đầy, lịch sắp xếp |
-| API (Playwright) | `tests/api/schedule-suggestions.spec.ts` | 6 kịch bản trên dữ liệu mẫu, kể cả admin bị 403 |
+| API (Playwright) | `tests/api/schedule-suggestions.spec.ts` | 7 kịch bản trên dữ liệu mẫu, kể cả admin bị 403 |
 | Giao diện | `frontend/tests/suggestions.test.tsx` | Chọn môn, sở thích, đổi phương án, đăng ký từng lớp |
 
 ## Dữ liệu demo

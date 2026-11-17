@@ -58,6 +58,18 @@ test('Muốn nghỉ thứ Ba: CS101-02 (thứ Sáu) lên đầu thay cho CS101-0
   await fresh.dispose();
 });
 
+test('Tránh học chiều: CS101-02 (thứ Sáu sáng) lên đầu thay cho CS101-01 (thứ Ba chiều)', async () => {
+  const fresh = await loginAsStudent('std_500');
+  await clearStudent('std_500');
+  const response = await fresh.post('/api/v1/schedule-suggestions', {
+    data: { courseIds: [await courseId('CS101')], preferences: { avoidAfternoon: true } },
+  });
+  const body = await response.json();
+  expect(body.suggestions.map(sectionCodes)).toEqual([['CS101-02'], ['CS101-01']]);
+  expect(body.suggestions[1].metrics.afternoonSessions).toBe(1);
+  await fresh.dispose();
+});
+
 test('Ghi lý do loại từng môn', async () => {
   await fillSection('PE101-01', 40);
   await setCapacity('PE101-01', 40); // lớp đầy

@@ -10,12 +10,15 @@ import {
 
 // Tiết 1-6 là buổi sáng (6h50 - 12h00 theo khung giờ của trường).
 export const LAST_MORNING_PERIOD = 6;
+// Tiết 7-12 là buổi chiều; tiết 13-15 là buổi tối.
+export const LAST_AFTERNOON_PERIOD = 12;
 
 // Dừng tìm sau ngần này phương án hợp lệ để một yêu cầu không chạy quá lâu.
 export const MAX_COMBINATIONS = 2000;
 
 export interface Preferences {
   avoidMorning: boolean; // tránh các buổi học bắt đầu từ tiết 1 đến tiết 6
+  avoidAfternoon: boolean; // tránh các buổi học bắt đầu từ tiết 7 đến tiết 12
   compactDays: boolean; // dồn lịch vào ít ngày nhất
   freeDays: number[]; // các thứ muốn nghỉ (1 = thứ Hai ... 7 = Chủ nhật)
 }
@@ -24,6 +27,7 @@ export interface Preferences {
 export const PENALTY = {
   busyFreeDay: 40, // mỗi ngày muốn nghỉ nhưng vẫn phải đi học
   morningSession: 10, // mỗi buổi học sáng, khi chọn tránh học sáng
+  afternoonSession: 10, // mỗi buổi học chiều, khi chọn tránh học chiều
   studyDay: 10, // mỗi ngày phải đến trường, khi chọn dồn lịch
   gapPeriod: 2, // mỗi tiết trống giữa hai buổi học trong cùng một ngày (luôn tính)
 } as const;
@@ -31,6 +35,7 @@ export const PENALTY = {
 export interface Metrics {
   studyDays: number; // số ngày phải đến trường
   morningSessions: number; // số buổi học bắt đầu từ tiết 1 đến tiết 6
+  afternoonSessions: number; // số buổi học bắt đầu từ tiết 7 đến tiết 12
   gapPeriods: number; // tổng số tiết trống giữa các buổi trong cùng ngày
   busyFreeDays: number[]; // các ngày muốn nghỉ nhưng vẫn có lịch
 }
@@ -72,6 +77,9 @@ export function measure(slots: ScheduleSlot[], preferences: Preferences): Metric
   return {
     studyDays: byDay.size,
     morningSessions: slots.filter((slot) => slot.startPeriod <= LAST_MORNING_PERIOD).length,
+    afternoonSessions: slots.filter(
+      (slot) => slot.startPeriod > LAST_MORNING_PERIOD && slot.startPeriod <= LAST_AFTERNOON_PERIOD,
+    ).length,
     gapPeriods,
     busyFreeDays: [...new Set(preferences.freeDays)]
       .filter((day) => byDay.has(day))
@@ -83,6 +91,7 @@ export function penaltyOf(metrics: Metrics, preferences: Preferences): number {
   return (
     metrics.busyFreeDays.length * PENALTY.busyFreeDay +
     (preferences.avoidMorning ? metrics.morningSessions * PENALTY.morningSession : 0) +
+    (preferences.avoidAfternoon ? metrics.afternoonSessions * PENALTY.afternoonSession : 0) +
     (preferences.compactDays ? metrics.studyDays * PENALTY.studyDay : 0) +
     metrics.gapPeriods * PENALTY.gapPeriod
   );

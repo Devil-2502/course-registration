@@ -6,7 +6,12 @@ import {
   type Preferences,
 } from '../src/suggestions/schedule-suggester';
 
-const none: Preferences = { avoidMorning: false, compactDays: false, freeDays: [] };
+const none: Preferences = {
+  avoidMorning: false,
+  avoidAfternoon: false,
+  compactDays: false,
+  freeDays: [],
+};
 
 // Một lớp chỉ có một buổi: thứ, tiết bắt đầu, tiết kết thúc.
 function section(code: string, courseId: number, day: number, start: number, end: number) {
@@ -30,7 +35,13 @@ describe('measure: đo một tuần học', () => {
       ],
       { ...none, freeDays: [3, 5] },
     );
-    expect(metrics).toEqual({ studyDays: 2, morningSessions: 2, gapPeriods: 3, busyFreeDays: [3] });
+    expect(metrics).toEqual({
+      studyDays: 2,
+      morningSessions: 2,
+      afternoonSessions: 1,
+      gapPeriods: 3,
+      busyFreeDays: [3],
+    });
   });
 
   it('hai buổi liền kề hoặc lồng nhau không tính tiết trống', () => {
@@ -49,6 +60,7 @@ describe('measure: đo một tuần học', () => {
     expect(measure([], none)).toEqual({
       studyDays: 0,
       morningSessions: 0,
+      afternoonSessions: 0,
       gapPeriods: 0,
       busyFreeDays: [],
     });
@@ -56,9 +68,18 @@ describe('measure: đo một tuần học', () => {
 });
 
 describe('penaltyOf: chỉ phạt tiêu chí sinh viên đã chọn', () => {
-  const metrics = { studyDays: 3, morningSessions: 2, gapPeriods: 1, busyFreeDays: [6] };
+  const metrics = {
+    studyDays: 3,
+    morningSessions: 2,
+    afternoonSessions: 1,
+    gapPeriods: 1,
+    busyFreeDays: [6],
+  };
   it('không chọn gì: chỉ phạt tiết trống và ngày muốn nghỉ', () => {
     expect(penaltyOf(metrics, none)).toBe(40 + 2);
+  });
+  it('chọn tránh học chiều: phạt mỗi buổi chiều', () => {
+    expect(penaltyOf(metrics, { ...none, avoidAfternoon: true })).toBe(40 + 1 * 10 + 2);
   });
   it('chọn tránh học sáng và dồn lịch', () => {
     expect(penaltyOf(metrics, { ...none, avoidMorning: true, compactDays: true })).toBe(
@@ -108,6 +129,18 @@ describe('suggestSchedules: quay lui tìm các phương án không trùng lịch
     const cs101 = [section('CS101-01', 1, 2, 7, 9), section('CS101-02', 1, 5, 1, 3)];
     const result = suggestSchedules([cs101], [], { ...none, avoidMorning: true }, 5);
     expect(codes(result.suggestions[0].sections)).toEqual(['CS101-01']);
+  });
+
+  it('tránh học chiều: ưu tiên lớp buổi sáng', () => {
+    const cs101 = [section('CS101-01', 1, 2, 7, 9), section('CS101-02', 1, 5, 1, 3)];
+    const result = suggestSchedules([cs101], [], { ...none, avoidAfternoon: true }, 5);
+    expect(codes(result.suggestions[0].sections)).toEqual(['CS101-02']);
+    expect(result.suggestions[1].metrics.afternoonSessions).toBe(1);
+  });
+
+  it('buổi tối (tiết 13-15) không tính là sáng hay chiều', () => {
+    const metrics = measure([{ dayOfWeek: 1, startPeriod: 13, endPeriod: 15 }], none);
+    expect(metrics.morningSessions + metrics.afternoonSessions).toBe(0);
   });
 
   it('cắt theo limit nhưng vẫn báo tổng số phương án', () => {

@@ -753,6 +753,7 @@ paths:
               courseIds: [2, 9, 19]
               preferences:
                 avoidMorning: false
+                avoidAfternoon: false
                 compactDays: true
                 freeDays: [6, 7]
               limit: 5
@@ -1223,6 +1224,9 @@ components:
             avoidMorning:
               type: boolean
               description: Penalise sessions starting in periods 1-6.
+            avoidAfternoon:
+              type: boolean
+              description: Penalise sessions starting in periods 7-12.
             compactDays:
               type: boolean
               description: Prefer fewer days on campus.
@@ -1273,11 +1277,13 @@ components:
           description: Lower is better.
         metrics:
           type: object
-          required: [studyDays, morningSessions, gapPeriods, busyFreeDays]
+          required: [studyDays, morningSessions, afternoonSessions, gapPeriods, busyFreeDays]
           properties:
             studyDays:
               type: integer
             morningSessions:
+              type: integer
+            afternoonSessions:
               type: integer
             gapPeriods:
               type: integer
