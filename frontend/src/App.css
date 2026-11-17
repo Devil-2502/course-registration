@@ -52,3 +52,13 @@ label { display: block; font-weight: 600; margin-bottom: .4rem; }
 .table-actions button { padding: .35rem .7rem; font-size: .9rem; }
 pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .85rem; }
 @media(max-width: 700px) { .slot-fields { grid-template-columns: 1fr 1fr; } header { align-items: flex-start; flex-direction: column; } main { padding-top: 1rem; } .login { margin: 2rem 1rem; } .search .actions { align-items: stretch; flex-direction: column; } }
+.suggest-form fieldset { border: 1px solid #d6e0eb; border-radius: 8px; padding: .8rem 1rem; margin: 0 0 1rem; background: white; }
+.suggest-form legend { font-weight: 600; padding: 0 .3rem; }
+.course-picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: .3rem .8rem; max-height: 320px; overflow-y: auto; }
+.suggest-form fieldset label { font-weight: 400; display: flex; gap: .45rem; align-items: center; margin: .25rem 0; }
+.inline-options { display: flex; flex-wrap: wrap; gap: .3rem 1.2rem; }
+.option-tabs { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+.option-tabs [aria-pressed=true] { background: #dceeff; border-color: #8dbce5; font-weight: 600; }
+.course-outcomes { list-style: none; padding: 0; display: grid; gap: .3rem; }
+.course-outcomes .skipped { color: #8b211b; }
+.course-outcomes .notice { margin: .2rem 0; }

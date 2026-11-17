@@ -4,13 +4,14 @@ import { ErrorNotice, Loading } from './components'
 import { days } from './days'
 import { useResource } from './useResource'
 
-export function Timetable({ schedule, preview, conflict = false }: {
+export function Timetable({ schedule, preview, conflict = false, creditsLabel = 'Tín chỉ đã đăng ký' }: {
   schedule: WeeklySchedule
+  creditsLabel?: string
   preview?: { course: Course; section: Section }
   conflict?: boolean
 }) {
   return <>
-    <p className="credits">Tín chỉ đã đăng ký: <strong>{schedule.totalCredits} / {schedule.maxCredits}</strong></p>
+    <p className="credits">{creditsLabel}: <strong>{schedule.totalCredits} / {schedule.maxCredits}</strong></p>
     <div className="table-scroll" tabIndex={0} role="region" aria-label="Thời khóa biểu tuần, kéo ngang để xem đủ bảy ngày">
       <table className="timetable"><caption>Thời khóa biểu tuần — tiết 1 đến 15</caption>
         <thead><tr><th scope="col">Tiết</th>{days.map(day => <th scope="col" key={day}>{day}</th>)}</tr></thead>

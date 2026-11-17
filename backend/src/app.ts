@@ -14,6 +14,10 @@ import { createRegistrationRepository } from './registration/registration.reposi
 import { createRegistrationsRouter } from './registration/registrations.routes';
 import { createSemesterRepository, createSemestersRouter } from './semesters/semesters';
 import { createStudentRepository, createStudentsMeRouter } from './students/students';
+import {
+  createSuggestionRepository,
+  createSuggestionsRouter,
+} from './suggestions/schedule-suggestions';
 import { createWaitlistRepository } from './waitlist/waitlist.repository';
 import { createWaitlistRouter } from './waitlist/waitlist.routes';
 
@@ -79,6 +83,14 @@ export function createApp() {
     requireAuth,
     requireRole('STUDENT'),
     createStudentsMeRouter(createStudentRepository(pool), (req) => Number(req.user?.studentId)),
+  );
+
+  // Gợi ý thời khóa biểu (cải tiến 1): sinh viên chọn môn, hệ thống đề xuất các cách xếp lớp.
+  app.use(
+    '/api/v1/schedule-suggestions',
+    requireAuth,
+    requireRole('STUDENT'),
+    createSuggestionsRouter(createSuggestionRepository(pool), (req) => Number(req.user?.studentId)),
   );
 
   app.use(notFoundHandler);
