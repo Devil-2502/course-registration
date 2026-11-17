@@ -70,6 +70,19 @@ Sau mỗi lần chạy, kiểm tra thêm trong cơ sở dữ liệu: `enrolled_c
 
 Kết quả chạy (số phản hồi theo từng mã, thời gian phản hồi) lưu lại để đưa vào báo cáo và demo.
 
+### 5.1. Thí nghiệm so sánh cách khóa (cải tiến 3)
+
+`load/lock-compare.mjs` chạy cùng các kịch bản trên với 3 cách chống tranh chấp (không khóa,
+`FOR UPDATE`, `SERIALIZABLE` có thử lại), trực tiếp trên PostgreSQL trong schema riêng
+`lock_experiment`, không cần backend. Kết quả và phân tích: `docs/improvements/06-lock-comparison.md`.
+
+```powershell
+$env:DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:5432/course_registration_test"
+$env:ALLOW_TEST_DB_RESET="1"
+npm run test:locks              # 5 lần mỗi kịch bản, 10 kết nối
+npm run test:locks -- --pool 20 # tải cao hơn
+```
+
 ## 6. CI
 
 Mỗi Pull Request vào `main` phải chạy và qua các bước:

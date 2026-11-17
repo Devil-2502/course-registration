@@ -1,0 +1,1080 @@
+{
+  "runAt": "2026-11-17T07:22:58.146Z",
+  "postgres": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "settings": {
+    "runs": 5,
+    "students": 100,
+    "poolSize": 10,
+    "validationQueries": 4,
+    "maxRetries": 10
+  },
+  "summary": [
+    {
+      "scenario": "last-seat",
+      "strategy": "none",
+      "runs": 5,
+      "correctRuns": 0,
+      "oversoldMax": 9,
+      "oversoldAvg": 9,
+      "enrolledAvg": 10,
+      "retriesAvg": 0,
+      "failedTotal": 0,
+      "missedSeatsAvg": 0,
+      "avgMs": 49,
+      "p95Ms": 77,
+      "wallMs": 78
+    },
+    {
+      "scenario": "last-seat",
+      "strategy": "for-update",
+      "runs": 5,
+      "correctRuns": 5,
+      "oversoldMax": 0,
+      "oversoldAvg": 0,
+      "enrolledAvg": 1,
+      "retriesAvg": 0,
+      "failedTotal": 0,
+      "missedSeatsAvg": 0,
+      "avgMs": 41,
+      "p95Ms": 70,
+      "wallMs": 73
+    },
+    {
+      "scenario": "last-seat",
+      "strategy": "serializable",
+      "runs": 5,
+      "correctRuns": 5,
+      "oversoldMax": 0,
+      "oversoldAvg": 0,
+      "enrolledAvg": 1,
+      "retriesAvg": 9,
+      "failedTotal": 0,
+      "missedSeatsAvg": 0,
+      "avgMs": 23,
+      "p95Ms": 36,
+      "wallMs": 37
+    },
+    {
+      "scenario": "empty-section",
+      "strategy": "none",
+      "runs": 5,
+      "correctRuns": 0,
+      "oversoldMax": 9,
+      "oversoldAvg": 8.8,
+      "enrolledAvg": 48.8,
+      "retriesAvg": 0,
+      "failedTotal": 0,
+      "missedSeatsAvg": 0,
+      "avgMs": 39,
+      "p95Ms": 58,
+      "wallMs": 58
+    },
+    {
+      "scenario": "empty-section",
+      "strategy": "for-update",
+      "runs": 5,
+      "correctRuns": 5,
+      "oversoldMax": 0,
+      "oversoldAvg": 0,
+      "enrolledAvg": 40,
+      "retriesAvg": 0,
+      "failedTotal": 0,
+      "missedSeatsAvg": 0,
+      "avgMs": 52,
+      "p95Ms": 81,
+      "wallMs": 83
+    },
+    {
+      "scenario": "empty-section",
+      "strategy": "serializable",
+      "runs": 5,
+      "correctRuns": 5,
+      "oversoldMax": 0,
+      "oversoldAvg": 0,
+      "enrolledAvg": 40,
+      "retriesAvg": 73.8,
+      "failedTotal": 0,
+      "missedSeatsAvg": 0,
+      "avgMs": 70,
+      "p95Ms": 94,
+      "wallMs": 101
+    },
+    {
+      "scenario": "spread",
+      "strategy": "none",
+      "runs": 5,
+      "correctRuns": 5,
+      "oversoldMax": 0,
+      "oversoldAvg": 0,
+      "enrolledAvg": 100,
+      "retriesAvg": 0,
+      "failedTotal": 0,
+      "missedSeatsAvg": 0,
+      "avgMs": 28,
+      "p95Ms": 51,
+      "wallMs": 52
+    },
+    {
+      "scenario": "spread",
+      "strategy": "for-update",
+      "runs": 5,
+      "correctRuns": 5,
+      "oversoldMax": 0,
+      "oversoldAvg": 0,
+      "enrolledAvg": 100,
+      "retriesAvg": 0,
+      "failedTotal": 0,
+      "missedSeatsAvg": 0,
+      "avgMs": 25,
+      "p95Ms": 45,
+      "wallMs": 45
+    },
+    {
+      "scenario": "spread",
+      "strategy": "serializable",
+      "runs": 5,
+      "correctRuns": 5,
+      "oversoldMax": 0,
+      "oversoldAvg": 0,
+      "enrolledAvg": 100,
+      "retriesAvg": 139.4,
+      "failedTotal": 0,
+      "missedSeatsAvg": 0,
+      "avgMs": 71,
+      "p95Ms": 131,
+      "wallMs": 158
+    }
+  ],
+  "report": [
+    {
+      "run": 1,
+      "strategy": "none",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 10,
+        "FULL": 90
+      },
+      "oversold": 9,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": false,
+      "retries": 0,
+      "timeMs": {
+        "avg": 62,
+        "p95": 94,
+        "max": 94
+      },
+      "wallMs": 95
+    },
+    {
+      "run": 2,
+      "strategy": "none",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 10,
+        "FULL": 90
+      },
+      "oversold": 9,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": false,
+      "retries": 0,
+      "timeMs": {
+        "avg": 45,
+        "p95": 75,
+        "max": 76
+      },
+      "wallMs": 76
+    },
+    {
+      "run": 3,
+      "strategy": "none",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 10,
+        "FULL": 90
+      },
+      "oversold": 9,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": false,
+      "retries": 0,
+      "timeMs": {
+        "avg": 44,
+        "p95": 68,
+        "max": 68
+      },
+      "wallMs": 68
+    },
+    {
+      "run": 4,
+      "strategy": "none",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 10,
+        "FULL": 90
+      },
+      "oversold": 9,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": false,
+      "retries": 0,
+      "timeMs": {
+        "avg": 41,
+        "p95": 69,
+        "max": 72
+      },
+      "wallMs": 72
+    },
+    {
+      "run": 5,
+      "strategy": "none",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 10,
+        "FULL": 90
+      },
+      "oversold": 9,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": false,
+      "retries": 0,
+      "timeMs": {
+        "avg": 54,
+        "p95": 80,
+        "max": 80
+      },
+      "wallMs": 81
+    },
+    {
+      "run": 1,
+      "strategy": "for-update",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 1,
+        "FULL": 99
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 49,
+        "p95": 82,
+        "max": 84
+      },
+      "wallMs": 84
+    },
+    {
+      "run": 2,
+      "strategy": "for-update",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 1,
+        "FULL": 99
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 43,
+        "p95": 71,
+        "max": 73
+      },
+      "wallMs": 73
+    },
+    {
+      "run": 3,
+      "strategy": "for-update",
+      "scenario": "last-seat",
+      "outcomes": {
+        "FULL": 99,
+        "ENROLLED": 1
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 40,
+        "p95": 74,
+        "max": 77
+      },
+      "wallMs": 77
+    },
+    {
+      "run": 4,
+      "strategy": "for-update",
+      "scenario": "last-seat",
+      "outcomes": {
+        "FULL": 99,
+        "ENROLLED": 1
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 44,
+        "p95": 72,
+        "max": 74
+      },
+      "wallMs": 74
+    },
+    {
+      "run": 5,
+      "strategy": "for-update",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 1,
+        "FULL": 99
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 30,
+        "p95": 53,
+        "max": 55
+      },
+      "wallMs": 55
+    },
+    {
+      "run": 1,
+      "strategy": "serializable",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 1,
+        "FULL": 99
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 9,
+      "timeMs": {
+        "avg": 28,
+        "p95": 43,
+        "max": 43
+      },
+      "wallMs": 43
+    },
+    {
+      "run": 2,
+      "strategy": "serializable",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 1,
+        "FULL": 99
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 9,
+      "timeMs": {
+        "avg": 21,
+        "p95": 33,
+        "max": 33
+      },
+      "wallMs": 33
+    },
+    {
+      "run": 3,
+      "strategy": "serializable",
+      "scenario": "last-seat",
+      "outcomes": {
+        "ENROLLED": 1,
+        "FULL": 99
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 9,
+      "timeMs": {
+        "avg": 21,
+        "p95": 32,
+        "max": 33
+      },
+      "wallMs": 33
+    },
+    {
+      "run": 4,
+      "strategy": "serializable",
+      "scenario": "last-seat",
+      "outcomes": {
+        "FULL": 99,
+        "ENROLLED": 1
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 9,
+      "timeMs": {
+        "avg": 19,
+        "p95": 30,
+        "max": 31
+      },
+      "wallMs": 31
+    },
+    {
+      "run": 5,
+      "strategy": "serializable",
+      "scenario": "last-seat",
+      "outcomes": {
+        "FULL": 99,
+        "ENROLLED": 1
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 9,
+      "timeMs": {
+        "avg": 26,
+        "p95": 43,
+        "max": 43
+      },
+      "wallMs": 43
+    },
+    {
+      "run": 1,
+      "strategy": "none",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 49,
+        "FULL": 51
+      },
+      "oversold": 9,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": false,
+      "retries": 0,
+      "timeMs": {
+        "avg": 42,
+        "p95": 64,
+        "max": 65
+      },
+      "wallMs": 65
+    },
+    {
+      "run": 2,
+      "strategy": "none",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 49,
+        "FULL": 51
+      },
+      "oversold": 9,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": false,
+      "retries": 0,
+      "timeMs": {
+        "avg": 40,
+        "p95": 58,
+        "max": 59
+      },
+      "wallMs": 59
+    },
+    {
+      "run": 3,
+      "strategy": "none",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 49,
+        "FULL": 51
+      },
+      "oversold": 9,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": false,
+      "retries": 0,
+      "timeMs": {
+        "avg": 34,
+        "p95": 50,
+        "max": 50
+      },
+      "wallMs": 50
+    },
+    {
+      "run": 4,
+      "strategy": "none",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 49,
+        "FULL": 51
+      },
+      "oversold": 9,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": false,
+      "retries": 0,
+      "timeMs": {
+        "avg": 37,
+        "p95": 55,
+        "max": 56
+      },
+      "wallMs": 56
+    },
+    {
+      "run": 5,
+      "strategy": "none",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 48,
+        "FULL": 52
+      },
+      "oversold": 8,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": false,
+      "retries": 0,
+      "timeMs": {
+        "avg": 40,
+        "p95": 62,
+        "max": 62
+      },
+      "wallMs": 62
+    },
+    {
+      "run": 1,
+      "strategy": "for-update",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 40,
+        "FULL": 60
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 57,
+        "p95": 90,
+        "max": 92
+      },
+      "wallMs": 92
+    },
+    {
+      "run": 2,
+      "strategy": "for-update",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 40,
+        "FULL": 60
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 56,
+        "p95": 85,
+        "max": 86
+      },
+      "wallMs": 86
+    },
+    {
+      "run": 3,
+      "strategy": "for-update",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 40,
+        "FULL": 60
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 50,
+        "p95": 78,
+        "max": 81
+      },
+      "wallMs": 81
+    },
+    {
+      "run": 4,
+      "strategy": "for-update",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 40,
+        "FULL": 60
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 47,
+        "p95": 75,
+        "max": 76
+      },
+      "wallMs": 76
+    },
+    {
+      "run": 5,
+      "strategy": "for-update",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 40,
+        "FULL": 60
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 49,
+        "p95": 79,
+        "max": 81
+      },
+      "wallMs": 81
+    },
+    {
+      "run": 1,
+      "strategy": "serializable",
+      "scenario": "empty-section",
+      "outcomes": {
+        "FULL": 60,
+        "ENROLLED": 40
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 60,
+      "timeMs": {
+        "avg": 60,
+        "p95": 79,
+        "max": 89
+      },
+      "wallMs": 89
+    },
+    {
+      "run": 2,
+      "strategy": "serializable",
+      "scenario": "empty-section",
+      "outcomes": {
+        "FULL": 60,
+        "ENROLLED": 40
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 79,
+      "timeMs": {
+        "avg": 63,
+        "p95": 85,
+        "max": 97
+      },
+      "wallMs": 97
+    },
+    {
+      "run": 3,
+      "strategy": "serializable",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 40,
+        "FULL": 60
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 75,
+      "timeMs": {
+        "avg": 67,
+        "p95": 91,
+        "max": 101
+      },
+      "wallMs": 101
+    },
+    {
+      "run": 4,
+      "strategy": "serializable",
+      "scenario": "empty-section",
+      "outcomes": {
+        "ENROLLED": 40,
+        "FULL": 60
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 86,
+      "timeMs": {
+        "avg": 84,
+        "p95": 115,
+        "max": 116
+      },
+      "wallMs": 116
+    },
+    {
+      "run": 5,
+      "strategy": "serializable",
+      "scenario": "empty-section",
+      "outcomes": {
+        "FULL": 60,
+        "ENROLLED": 40
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 69,
+      "timeMs": {
+        "avg": 74,
+        "p95": 100,
+        "max": 100
+      },
+      "wallMs": 100
+    },
+    {
+      "run": 1,
+      "strategy": "none",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 32,
+        "p95": 61,
+        "max": 62
+      },
+      "wallMs": 62
+    },
+    {
+      "run": 2,
+      "strategy": "none",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 28,
+        "p95": 50,
+        "max": 51
+      },
+      "wallMs": 51
+    },
+    {
+      "run": 3,
+      "strategy": "none",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 29,
+        "p95": 52,
+        "max": 53
+      },
+      "wallMs": 53
+    },
+    {
+      "run": 4,
+      "strategy": "none",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 28,
+        "p95": 48,
+        "max": 49
+      },
+      "wallMs": 49
+    },
+    {
+      "run": 5,
+      "strategy": "none",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 25,
+        "p95": 46,
+        "max": 47
+      },
+      "wallMs": 47
+    },
+    {
+      "run": 1,
+      "strategy": "for-update",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 25,
+        "p95": 46,
+        "max": 46
+      },
+      "wallMs": 46
+    },
+    {
+      "run": 2,
+      "strategy": "for-update",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 25,
+        "p95": 45,
+        "max": 46
+      },
+      "wallMs": 47
+    },
+    {
+      "run": 3,
+      "strategy": "for-update",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 25,
+        "p95": 44,
+        "max": 45
+      },
+      "wallMs": 45
+    },
+    {
+      "run": 4,
+      "strategy": "for-update",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 24,
+        "p95": 43,
+        "max": 43
+      },
+      "wallMs": 43
+    },
+    {
+      "run": 5,
+      "strategy": "for-update",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 0,
+      "timeMs": {
+        "avg": 25,
+        "p95": 45,
+        "max": 45
+      },
+      "wallMs": 45
+    },
+    {
+      "run": 1,
+      "strategy": "serializable",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 131,
+      "timeMs": {
+        "avg": 72,
+        "p95": 136,
+        "max": 153
+      },
+      "wallMs": 153
+    },
+    {
+      "run": 2,
+      "strategy": "serializable",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 154,
+      "timeMs": {
+        "avg": 74,
+        "p95": 137,
+        "max": 165
+      },
+      "wallMs": 165
+    },
+    {
+      "run": 3,
+      "strategy": "serializable",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 142,
+      "timeMs": {
+        "avg": 69,
+        "p95": 121,
+        "max": 138
+      },
+      "wallMs": 138
+    },
+    {
+      "run": 4,
+      "strategy": "serializable",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 137,
+      "timeMs": {
+        "avg": 75,
+        "p95": 140,
+        "max": 184
+      },
+      "wallMs": 184
+    },
+    {
+      "run": 5,
+      "strategy": "serializable",
+      "scenario": "spread",
+      "outcomes": {
+        "ENROLLED": 100
+      },
+      "oversold": 0,
+      "counterMismatch": 0,
+      "missedSeats": 0,
+      "failedRequests": 0,
+      "correct": true,
+      "retries": 133,
+      "timeMs": {
+        "avg": 63,
+        "p95": 123,
+        "max": 149
+      },
+      "wallMs": 149
+    }
+  ]
+}
