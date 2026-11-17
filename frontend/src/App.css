@@ -62,3 +62,6 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .85rem; }
 .course-outcomes { list-style: none; padding: 0; display: grid; gap: .3rem; }
 .course-outcomes .skipped { color: #8b211b; }
 .course-outcomes .notice { margin: .2rem 0; }
+.swap-picker { margin-top: .5rem; }
+.swap-options { list-style: none; padding: 0; display: grid; gap: .5rem; margin: .75rem 0; }
+.swap-options li { justify-content: space-between; background: white; padding: .5rem .7rem; border-radius: 6px; }

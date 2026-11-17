@@ -69,14 +69,14 @@ function toAppError(violation: Violation): AppError {
 
 // Khóa dòng để các transaction cùng lớp hoặc cùng sinh viên chạy lần lượt.
 // Luôn khóa lớp trước rồi mới khóa sinh viên, ở cả đăng ký lẫn hủy, để tránh deadlock.
-async function lockSection(client: PoolClient, sectionId: number): Promise<boolean> {
+export async function lockSection(client: PoolClient, sectionId: number): Promise<boolean> {
   const { rows } = await client.query('SELECT id FROM sections WHERE id = $1 FOR UPDATE', [
     sectionId,
   ]);
   return rows.length > 0;
 }
 
-async function lockStudent(client: PoolClient, studentId: number): Promise<void> {
+export async function lockStudent(client: PoolClient, studentId: number): Promise<void> {
   await client.query('SELECT id FROM students WHERE id = $1 FOR UPDATE', [studentId]);
 }
 
@@ -199,6 +199,12 @@ export function createEnrolmentRepository(db: Database): EnrolmentStore {
           [registrationId],
         );
         if (dropped.rowCount === 0) throw notFound('Active registration');
+        // Không còn học lớp này thì yêu cầu đổi lớp từ lớp này (cải tiến 2) cũng hết hiệu lực.
+        await client.query(
+          `UPDATE swap_requests SET status = 'CANCELLED', resolved_at = now()
+           WHERE student_id = $1 AND from_section_id = $2 AND status = 'OPEN'`,
+          [studentId, sectionId],
+        );
         await client.query(
           'UPDATE sections SET enrolled_count = enrolled_count - 1 WHERE id = $1',
           [sectionId],

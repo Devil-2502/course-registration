@@ -76,7 +76,8 @@ describe('US-03 và xem trước đăng ký', () => {
     finish(json({ id: 1, status: 'ENROLLED' }, 201))
     expect(await screen.findByText('Đăng ký thành công lớp CS201-02.')).toBeVisible()
     expect(fetch).toHaveBeenCalledWith('/api/v1/registrations', expect.objectContaining({ body: '{"sectionId":22}', credentials: 'include' }))
-    expect(fetch.mock.calls.filter(([url]) => String(url).includes('/schedule')).length).toBeGreaterThanOrEqual(2)
+    // Lịch được tải lại sau khi báo thành công; chờ thay vì kiểm tra ngay để test không hỏng ngẫu nhiên.
+    await waitFor(() => expect(fetch.mock.calls.filter(([url]) => String(url).includes('/schedule')).length).toBeGreaterThanOrEqual(2))
   })
   it('hiển thị từ chối cấp chỗ dù xem trước hợp lệ', async () => {
     mockApi(path => path.includes('/courses/') ? json(course) : path.includes('/schedule') ? json(schedule) : path.endsWith('/validate') ?

@@ -17,9 +17,11 @@ export async function closeDb(): Promise<void> {
 export async function ensureSchema(): Promise<void> {
   assertTestDatabase(DATABASE_URL, resolve(DB_DIR, 'seeds', '001_seed.sql'));
   const { rows } = await pool.query("SELECT to_regclass('public.users') AS users");
-  if (rows[0].users) return;
   const dir = resolve(DB_DIR, 'migrations');
-  for (const file of readdirSync(dir).filter((name) => name.endsWith('.sql')).sort()) {
+  // CSDL đã có bảng (chạy test lần trước) thì chỉ chạy lại các migration từ 003, vốn viết IF NOT EXISTS.
+  const files = readdirSync(dir).filter((name) => name.endsWith('.sql')).sort()
+    .filter((name) => !rows[0].users || name >= '003');
+  for (const file of files) {
     await pool.query(readFileSync(resolve(dir, file), 'utf8'));
   }
 }
@@ -54,6 +56,7 @@ async function recount(): Promise<void> {
 // Hủy mọi đăng ký và hàng chờ của một sinh viên.
 export async function clearStudent(studentCode: string): Promise<void> {
   const id = await studentId(studentCode);
+  await pool.query('DELETE FROM swap_requests WHERE student_id = $1', [id]);
   await pool.query('DELETE FROM enrolments WHERE student_id = $1', [id]);
   await pool.query('DELETE FROM waitlist_entries WHERE student_id = $1', [id]);
   await recount();

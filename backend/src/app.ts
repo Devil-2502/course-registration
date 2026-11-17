@@ -18,6 +18,8 @@ import {
   createSuggestionRepository,
   createSuggestionsRouter,
 } from './suggestions/schedule-suggestions';
+import { createSwapRepository } from './swaps/swap.repository';
+import { createSwapRouter } from './swaps/swap.routes';
 import { createWaitlistRepository } from './waitlist/waitlist.repository';
 import { createWaitlistRouter } from './waitlist/waitlist.routes';
 
@@ -91,6 +93,14 @@ export function createApp() {
     requireAuth,
     requireRole('STUDENT'),
     createSuggestionsRouter(createSuggestionRepository(pool), (req) => Number(req.user?.studentId)),
+  );
+
+  // Đổi lớp an toàn (cải tiến 2): đổi chéo hoặc chuyển thẳng trong một giao dịch, không mất chỗ.
+  app.use(
+    '/api/v1/swap-requests',
+    requireAuth,
+    requireRole('STUDENT'),
+    createSwapRouter(createSwapRepository(pool), (req) => Number(req.user?.studentId)),
   );
 
   app.use(notFoundHandler);

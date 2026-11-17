@@ -30,6 +30,8 @@ tags:
     description: Data of the signed-in student.
   - name: Suggestions
     description: Automatic timetable suggestions (improvement 1).
+  - name: Swaps
+    description: Safe section swaps within a course (improvement 2).
 security:
   - cookieAuth: []
 
@@ -773,6 +775,97 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /swap-requests:
+    get:
+      tags: [Swaps]
+      summary: List the signed-in student's swap requests in the current semester
+      operationId: listMySwapRequests
+      responses:
+        '200':
+          description: Swap requests, newest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SwapRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Swaps]
+      summary: Ask to move to another section of a course the student is enrolled in
+      description: |
+        Runs in one transaction that locks both sections (lower id first) and then the student.
+        If a student in the target section is waiting to move the opposite way, both are swapped
+        (SWAPPED, counts unchanged). Otherwise, if the target has a free seat, the student moves
+        straight away and the first eligible student on the old section's waitlist is promoted (MOVED).
+        Otherwise the request is stored and the student keeps the current seat (PENDING).
+      operationId: createSwapRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SwapRequestInput'
+      responses:
+        '201':
+          description: Request processed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SwapResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Not a student (FORBIDDEN) or registration is closed (REGISTRATION_CLOSED).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: |
+            NOT_ENROLLED_IN_COURSE, SAME_SECTION, SWAP_REQUEST_EXISTS, SCHEDULE_CLASH
+            (details.conflictsWith) or REGISTRATION_CHANGED.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /swap-requests/{requestId}:
+    delete:
+      tags: [Swaps]
+      summary: Cancel an open swap request
+      operationId: cancelSwapRequest
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Cancelled.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: The request is no longer open (SWAP_REQUEST_NOT_OPEN).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   securitySchemes:
     cookieAuth:
@@ -1347,3 +1440,56 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ScheduleSuggestion'
+
+    SwapRequestInput:
+      type: object
+      required: [toSectionId]
+      properties:
+        toSectionId:
+          type: integer
+
+    SwapRequest:
+      type: object
+      required: [id, courseCode, courseName, fromSection, toSection, status, outcome, createdAt, resolvedAt]
+      properties:
+        id:
+          type: integer
+        courseCode:
+          type: string
+        courseName:
+          type: string
+        fromSection:
+          $ref: '#/components/schemas/SectionRef'
+        toSection:
+          $ref: '#/components/schemas/SectionRef'
+        status:
+          type: string
+          enum: [OPEN, COMPLETED, CANCELLED]
+        outcome:
+          type: [string, 'null']
+          enum: [MOVED, SWAPPED, null]
+        createdAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: [string, 'null']
+          format: date-time
+
+    SectionRef:
+      type: object
+      required: [id, code]
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+
+    SwapResult:
+      type: object
+      required: [outcome, request]
+      properties:
+        outcome:
+          type: string
+          enum: [MOVED, SWAPPED, PENDING]
+        request:
+          $ref: '#/components/schemas/SwapRequest'
