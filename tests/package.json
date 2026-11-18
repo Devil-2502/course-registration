@@ -7,6 +7,7 @@
     "test": "playwright test",
     "test:db": "node run-db.mjs",
     "test:load": "node load/run.mjs all",
+    "test:locks": "node load/lock-compare.mjs",
     "typecheck": "tsc --noEmit",
     "test:safety": "node --test db-safety.test.cjs"
   },
